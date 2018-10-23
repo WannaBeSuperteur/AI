@@ -1,7 +1,7 @@
 import random
 num_of_cons = []
 
-def make_conboard(board):
+def make_conboard(board, N):
     conboard = [[0]*N for i in range(N)]
     for i in range(N):
         for j in range(N):
@@ -130,19 +130,21 @@ def most_constrained(N, option):
 
                 # if violate the constraint, continue
                 if find_queens(board, i, least_legal_column, N) > 0:
-                    num_of_cons.append('*')
+                    if i == 0: num_of_cons.append('* <- num of constrained cells')
+                    else: num_of_cons.append('*')
                     continue
 
                 # check the number of constraints (set each row to 1 and make con-board)
                 board[i][least_legal_column] = 1
-                (conboard, count) = make_conboard(board)
+                (conboard, count) = make_conboard(board, N)
                 board[i][least_legal_column] = 0
                 
                 if count < least_con_value: # using count instead of (count+count_init)
                     least_con_value = count
                     least_con_row = i
 
-                num_of_cons.append(str(count))
+                if i == 0: num_of_cons.append(str(count) + ' <- num of constrained cells')
+                else: num_of_cons.append(str(count))
 
             # set board
             variable_set[least_legal_column] = least_con_row
@@ -250,6 +252,6 @@ def forward_checking(N, option, allfind):
         else: print('there is no solution for N=' + str(N))
     else: print(str(numofsol) + ' solutions found')
 
-# most_constrained(6, 0)
-# most_constrained(6, 1)
-forward_checking(11, 0, 1)
+most_constrained(7, 0)
+most_constrained(7, 1)
+forward_checking(6, 1, 0)
