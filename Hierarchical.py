@@ -116,7 +116,8 @@ def Hierarchical(data, K, M):
         #    -> update matrix
         last_i = 0
         for i in range(NC-1):
-            if last_i == merge1 or last_i == merge2: last_i += 1
+            if last_i == merge1: last_i += 1
+            if last_i == merge2: last_i += 1
             mindist = min(tm[merge1][last_i], tm[merge2][last_i])
             matrix[NC-1][i] = mindist
             matrix[i][NC-1] = mindist
