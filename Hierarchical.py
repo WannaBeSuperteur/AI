@@ -126,5 +126,5 @@ def Hierarchical(data, K, M):
     return clusters
 
 data = getData()
-result = Hierarchical(data, 2, 2)
+result = Hierarchical(data, 1, 2)
 print(result)
