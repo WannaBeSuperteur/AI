@@ -1,3 +1,6 @@
+# can run on more than 10 attributes (+= -> append)
+# error
+
 import math
 
 # Get count of each item (in array data, attribute No.coln)
@@ -57,7 +60,7 @@ def Decision(option):
     filter_value = []
     
     # get data
-    file = open('DecisionData.txt', 'r')
+    file = open('DecisionBOSS.txt', 'r')
     read = file.readlines()
     file.close
 
@@ -95,13 +98,32 @@ def Decision(option):
         for i in range(len(filter_column)):
             toprint.append(filter_column[i])
             toprint.append(filter_value[i])
+
+        # if leaf node, CONTINUE
+        # check if there is a leaf node in the decision tree contains [filter2, *]
+        filter2 = []
+        for i in range(len(toprint)): filter2.append(toprint[i])
+        filter2.append('*')
+        leafnode = 0
+        for i in range(len(final_decisiontree)): # for each node in the decision tree
+            leafnode = 1
+            for j in range(len(filter2)): # for each node in [filter list, *]
+                if j >= len(final_decisiontree[i]):
+                    leafnode = 0
+                    break
+                if filter2[j] != final_decisiontree[i][j]:
+                    leafnode = 0
+                    break
+            if leafnode == 1: break
+
         print('')
         print('★filter: ' + str(toprint))
+        if leafnode == 1: print('▶ALREADY LEAF NODE')
 
         # check if pure (leaf node)
         countdata = getCounts(filtered_data, targetcol)
         nonleaf = 1
-        if len(countdata) == 1: # pure data -> leaf node
+        if leafnode == 0 and len(countdata) == 1: # pure data -> leaf node
             print('▷Target Col is PURE:' + str(countdata[0]))
             print('▶PURE -> LEAF')
             print('')
@@ -118,7 +140,7 @@ def Decision(option):
             nonleaf = 0 # if leaf node, set nonleaf to 0
 
         # if leaf node, do not calculate entropy or Gini
-        if nonleaf == 1:
+        if leafnode == 0 and nonleaf == 1:
             
             # option 0: using entropy
             # evaluate entropy of target attribute
@@ -154,7 +176,8 @@ def Decision(option):
             # option else: using Gini
             else:
                 SGini = getGini(countdata) # Gini(S)
-                print('SGini: ' + str(round(SGini, 4)))
+                print('▷Target Col: ' + str(countdata))
+                print('▷SGini: ' + str(round(SGini, 4)))
 
                 # evaluate Gini for each attribute
                 gainlist = []
@@ -181,20 +204,43 @@ def Decision(option):
                     print('<' + str(i) + '> Gain       : ' + str(round(Gain, 4)))
 
             # sort and get the largest Gain value
-            gainlist.sort(key=lambda x:x[1])
-            split_no = gainlist[len(gainlist)-1][0] # split by this attribute
-            print('▷decide column to split: ' + str(split_no))
-            print('▶SPLIT -> NONLEAF')
-            print('')
+            if len(gainlist) > 0:
+                gainlist.sort(key=lambda x:x[1])
+                split_no = gainlist[len(gainlist)-1][0] # split by this attribute
+                print('▷decide column to split: ' + str(split_no))
+                print('▶SPLIT -> NONLEAF')
+                print('')
+            else: # expand by all columns, but still not pure -> max
+                temp = []
+                for i in range(len(filter_column)):
+                    temp.append(filter_column[i])
+                    temp.append(filter_value[i])
+                temp += '*'
+
+                # find the max
+                maxv = ''
+                count = 0
+                for i in range(len(countdata)):
+                    if count < countdata[i][1]:
+                        maxv = countdata[i][0]
+                        count = countdata[i][1]
+
+                # append to tree
+                temp.append(maxv) # value
+                decisiontree.append(temp)
+                final_decisiontree.append(temp)
+                print('▶NOT PURE but NO COLUMN LEFT -> LEAF / ANSWER=' + str(maxv))
+                print('→tree:' + str(final_decisiontree))
+                continue
 
             # make decision tree
             to_split = getCounts(filtered_data, split_no) # [index][0] = item name, [index][1] = count
             for i in range(len(to_split)):
                 temp = []
                 for j in range(len(filter_column)):
-                    temp += filter_column[j]
-                    temp += filter_value[j]
-                temp += str(split_no) # column index
+                    temp.append(filter_column[j])
+                    temp.append(filter_value[j])
+                temp.append(str(split_no)) # column index
                 temp.append(to_split[i][0]) # value
                 decisiontree.append(temp)
                 final_decisiontree.append(temp)
@@ -240,6 +286,8 @@ def getAnswer(query, decisiontree):
             # pass if not equal
             equal = 1
             for k in range(i):
+                if int(decisiontree[j][2*k]) >= len(query):
+                    return 'Dimension of query is wrong. T_T'
                 if query[int(decisiontree[j][2*k])] != decisiontree[j][2*k+1]:
                     equal = 0
                     break
@@ -257,4 +305,4 @@ dt = Decision(0)
 print('')
 print('FINAL DECISION TREE')
 print(dt)
-print(getAnswer(['16', '15', '14', '13'], dt))
+print(getAnswer(['16', '15', '14', '13', '1', '2', '3', '4', '5', '1'], dt))
