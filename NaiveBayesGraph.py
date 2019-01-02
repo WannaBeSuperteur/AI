@@ -48,7 +48,7 @@ for i in range(len(query)):
     # simple probability
     # P(x) = P(y)P(x|y)+P(~y)P(x|~y) = P(0)P(y|0)P(x|y)+P(~0)P(~y|~0)P(x|~y) (if 0-y-x tree)
     if len(query[i]) == 1:
-        prob = NBP.simpleProb(toNumber(query[i][0].split('^')), graph, probs)
+        prob = NBP.simpleProb(toNumber(query[i][0].split('^')), graph, probs, 1)
         print('Query ' + str(queryCopy) + ' -> ' + str(round(prob, 9)))
 
     # conditional probability
@@ -56,5 +56,5 @@ for i in range(len(query)):
     elif len(query[i]) == 2:
         arr0 = toNumber(query[i][0].split('^')) # left of |
         arr1 = toNumber(query[i][1].split('^')) # right of |
-        prob = NBP.condiProb(arr0, arr1, graph, probs)
+        prob = NBP.condiProb(arr0, arr1, graph, probs, 1)
         print('Query ' + str(queryCopy) + ' -> ' + str(round(prob, 9)))

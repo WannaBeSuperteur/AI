@@ -1,5 +1,5 @@
 # calculate simple probability
-def simpleProb(iArr, graph, probs):
+def simpleProb(iArr, graph, probs, pr):
     pre = 0 # are there predecessors?
     additional = [] # additional nodes
     
@@ -17,7 +17,7 @@ def simpleProb(iArr, graph, probs):
                 pre = 1
         i += 1
             
-    print('iArr: ' + str(iArr))
+    if pr != 0: print('iArr: ' + str(iArr))
 
     # 1. calculate probability
     # there is no additional predecessor
@@ -66,7 +66,7 @@ def simpleProb(iArr, graph, probs):
         return prob
 
 # calculate conditional probability
-def condiProb(iArr0, iArr1, graph, probs):
+def condiProb(iArr0, iArr1, graph, probs, pr):
     iArr2 = iArr0 + iArr1 # merge
     # P(A|B) = P(A, B)/P(B)
-    return simpleProb(iArr2, graph, probs) / simpleProb(iArr1, graph, probs)
+    return simpleProb(iArr2, graph, probs, pr) / simpleProb(iArr1, graph, probs, pr)
