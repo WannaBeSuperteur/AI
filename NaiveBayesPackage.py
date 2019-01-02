@@ -61,7 +61,7 @@ def simpleProb(iArr, graph, probs, pr):
                 if int(i / pow(2, len(iArr)-1-j)) % 2 == 1: iArrCopy[j] *= -1
 
             # add the case of probability
-            prob += simpleProb(iArrCopy, graph, probs)
+            prob += simpleProb(iArrCopy, graph, probs, pr)
 
         return prob
 
