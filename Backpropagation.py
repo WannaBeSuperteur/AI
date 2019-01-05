@@ -92,7 +92,10 @@ def Backpropagation(input_, output_, hNn, lr, printDetail, testdata):
         # learning
         # for each training data
         error = []
-        for d in range(len(input_)):
+        for d in range(2*len(input_)):
+
+            # if d >= (number of inputs) -> random
+            if d >= len(input_): d = random.randint(0, len(input_)-1)
             
             # if last loop, about test data
             if last == 1: input_[d] = testdata
@@ -241,4 +244,4 @@ def Backpropagation(input_, output_, hNn, lr, printDetail, testdata):
         
 (input_, output_, testdata) = getData()
 
-Backpropagation(input_, output_, 12, 3.5, -1, testdata)
+Backpropagation(input_, output_, 12, 3.3, -1, testdata)
