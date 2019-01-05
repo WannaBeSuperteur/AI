@@ -59,8 +59,9 @@ def Backpropagation(input_, output_, hNn, lr, printDetail, testdata):
         count += 1
 
         # print neuron info
-        print('')
-        print('ROUND ' + str(count))
+        if printDetail >= -1 or count == 1 or last == 1 or count % 100 == 0:
+            print('')
+            print('ROUND ' + str(count))
         if printDetail >= 2 or count == 1 or last == 1:
             print('')
             print('<HIDDEN>')
@@ -217,8 +218,10 @@ def Backpropagation(input_, output_, hNn, lr, printDetail, testdata):
             errorSum += abs(error[i])
             if printDetail >= 0:
                 print('error for input ' + str(i) + ': ' + str(round(error[i], 6)))
-        print('sum of error: ' + str(round(errorSum, 6)))
-        if errorSum / (len(input_) * len(output_)) < 0.001 or count >= 20000: last = 1
+        if printDetail >= -1 or count % 100 == 0:
+            print('sum of error: ' + str(round(errorSum, 6)))
+        if errorSum / (len(input_) * len(output_)) < 0.001 or (count >= 20000 and printDetail >= -1) or count >= 1000000:
+            last = 1
 
         # print change of weight
         if printDetail >= 1:
@@ -241,4 +244,4 @@ def Backpropagation(input_, output_, hNn, lr, printDetail, testdata):
         
 (input_, output_, testdata) = getData()
 
-Backpropagation(input_, output_, 12, 3.25, -1, testdata)
+Backpropagation(input_, output_, 6, 3.25, -2, testdata)
