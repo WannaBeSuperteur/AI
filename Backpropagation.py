@@ -12,19 +12,21 @@ def getData():
     output_ = [] # desired output
 
     # read input and output
-    for i in range(0, len(read)):
+    for i in range(0, len(read)-1):
         row = read[i].split('\n')[0].split('/')
         input_.append(row[0].split(' '))
         output_.append(row[1].split(' '))
+    # read test data
+    testdata = read[len(read)-1].split('\n')[0].split(' ')
         
-    return (input_, output_)
+    return (input_, output_, testdata)
 
 # activation function
 def sigmoid(value):
     return 1/(1+math.exp(-value))
 
 # train Neural Network
-def Backpropagation(input_, output_, hNn, lr, printDetail):
+def Backpropagation(input_, output_, hNn, lr, printDetail, testdata):
 
     iNn = len(input_[0]) # number of input neurons
     oNn = len(output_[0]) # number of output neurons
@@ -51,6 +53,7 @@ def Backpropagation(input_, output_, hNn, lr, printDetail):
         oNt.append(random.random()) # 1 threshold/neuron
 
     # repeat until convergence
+    last = 0 # check if last loop
     count = 0
     while 1:
         count += 1
@@ -58,7 +61,7 @@ def Backpropagation(input_, output_, hNn, lr, printDetail):
         # print neuron info
         print('')
         print('ROUND ' + str(count))
-        if printDetail >= 2:
+        if printDetail >= 2 or count == 1 or last == 1:
             print('')
             print('<HIDDEN>')
             for i in range(hNn):
@@ -90,10 +93,15 @@ def Backpropagation(input_, output_, hNn, lr, printDetail):
         # for each training data
         error = []
         for d in range(len(input_)):
-            if printDetail >= 2:
+            
+            # if last loop, about test data
+            if last == 1: input_[d] = testdata
+            
+            if printDetail >= 2 or last == 1:
                 print('')
                 print('input data    : ' + str(input_[d]))
-                print('desired output: ' + str(output_[d]))
+                # do not print output if last loop
+                if last <= 0: print('desired output: ' + str(output_[d]))
             
             # input layer -> hidden layer
             # j INPUTs and i HIDDENs
@@ -104,7 +112,7 @@ def Backpropagation(input_, output_, hNn, lr, printDetail):
                     hX += hNw[i][j]*float(input_[d][j])
                 hiddenInput.append(hX)
 
-            if printDetail >= 2:
+            if printDetail >= 2 or last == 1:
                 his = 'Hidden Layer Input: [ '
                 for i in range(hNn): his += str(round(hiddenInput[i], 6)) + '  '
                 print(his + ']')
@@ -113,7 +121,7 @@ def Backpropagation(input_, output_, hNn, lr, printDetail):
             hiddenOutput = [] # hidden layer output
             for i in range(hNn): hiddenOutput.append(sigmoid(hiddenInput[i]))
 
-            if printDetail >= 2:
+            if printDetail >= 2 or last == 1:
                 hos = 'Hidden Layer Output: [ '
                 for i in range(hNn): hos += str(round(hiddenOutput[i], 6)) + '  '
                 print(hos + ']')
@@ -127,7 +135,7 @@ def Backpropagation(input_, output_, hNn, lr, printDetail):
                     oX += oNw[i][j]*float(hiddenOutput[j])
                 outputInput.append(oX)
 
-            if printDetail >= 2:
+            if printDetail >= 2 or last == 1:
                 ois = 'Output Layer Input: [ '
                 for i in range(oNn): ois += str(round(outputInput[i], 6)) + '  '
                 print(ois + ']')
@@ -136,10 +144,13 @@ def Backpropagation(input_, output_, hNn, lr, printDetail):
             outputOutput = [] # output layer output
             for i in range(oNn): outputOutput.append(sigmoid(outputInput[i]))
 
-            if printDetail >= 2:
+            if printDetail >= 2 or last == 1:
                 oos = 'Output Layer Output: [ '
                 for i in range(oNn): oos += str(round(outputOutput[i], 6)) + '  '
                 print(oos + ']')
+
+            # for test data, no need of backpropagation
+            if last == 1: break
 
             # find So and Sh
             # So = (do-Oo)*Oo*(1-Oo)
@@ -197,7 +208,9 @@ def Backpropagation(input_, output_, hNn, lr, printDetail):
                     print('output=' + str(round(outputOutput[i], 6)) + ', desired=' + str(output_[d][i]))
                 error.append(outputOutput[i]-float(output_[d][i]))
 
-        # check stop condition
+        if last == 1: break                
+
+        # check stop condition (set last to 1)
         errorSum = 0
         if printDetail >= 0: print('')
         for i in range(len(error)):
@@ -205,7 +218,7 @@ def Backpropagation(input_, output_, hNn, lr, printDetail):
             if printDetail >= 0:
                 print('error for input ' + str(i) + ': ' + str(round(error[i], 6)))
         print('sum of error: ' + str(round(errorSum, 6)))
-        if errorSum / (len(input_) * len(output_)) < 0.001: break
+        if errorSum / (len(input_) * len(output_)) < 0.001 or count >= 20000: last = 1
 
         # print change of weight
         if printDetail >= 1:
@@ -226,6 +239,6 @@ def Backpropagation(input_, output_, hNn, lr, printDetail):
                     after = str(round(oNw[i][j], 6))
                     print('[ hiddenN ' + str(j) + ' ] weight = ' + before + '->' + after)
         
-(input_, output_) = getData()
+(input_, output_, testdata) = getData()
 
-Backpropagation(input_, output_, 6, 0.5, 0)
+Backpropagation(input_, output_, 12, 3.5, -1, testdata)
