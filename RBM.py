@@ -38,6 +38,21 @@ def makeRandom(value):
     result = round(result, 6)
     return result
 
+# average
+def avg(array):
+    if len(array) == 0: return 0
+    return sum(array, 0.0) / len(array)
+
+# standard deviation
+def sd(array):
+    if len(array) < 2: return 1
+
+    average = avg(array)
+    sum0 = 0 # sum of (xi-avg)^2
+    for i in range(len(array)):
+        sum0 += (array[i] - average)*(array[i] - average)
+    return math.sqrt(sum0 / len(array))
+
 # main: RBM
 def RBM(v, colsOfW, lr):
     
@@ -45,7 +60,7 @@ def RBM(v, colsOfW, lr):
     W = [[0]*colsOfW for i in range(len(v[0]))]
     for i in range(len(W)):
         for j in range(len(W[0])):
-            W[i][j] = round((-1) + makeRandom(20)*2, 6)
+            W[i][j] = round((-1) + makeRandom(200)*2, 6)
     
     # print
     print('v:')
@@ -80,7 +95,7 @@ def RBM(v, colsOfW, lr):
         h = [[0]*len(W[0]) for i in range(len(v))]
         for i in range(len(v)):
             for j in range(len(W[0])):
-                if phv[i][j] >= makeRandom(10): h[i][j] = 1
+                if phv[i][j] >= makeRandom(100): h[i][j] = 1
                 else: h[i][j] = 0
 
         print('h = {p(h|v) >= randomval}')
@@ -105,7 +120,7 @@ def RBM(v, colsOfW, lr):
         v1 = [[0]*len(v[0]) for i in range(len(v))]
         for i in range(len(v)):
             for j in range(len(W)):
-                if pv1h[i][j] >= makeRandom(10): v1[i][j] = 1
+                if pv1h[i][j] >= makeRandom(100): v1[i][j] = 1
                 else: v1[i][j] = 0
 
         print('v1 = {p(v1|h) >= randomval}')
@@ -119,7 +134,7 @@ def RBM(v, colsOfW, lr):
             for j in range(len(W[0])):
                for k in range(len(W)):
                    h1[i][j] += v1[i][k] * W[k][j]
-               if sigmoid(h1[i][j]) >= makeRandom(10): h1[i][j] = 1
+               if sigmoid(h1[i][j]) >= makeRandom(100): h1[i][j] = 1
                else: h1[i][j] = 0
 
         print('h(1) = {sigm(v(1)*W) >= randomval}')
@@ -172,4 +187,49 @@ def RBM(v, colsOfW, lr):
             break
 
 (hiddens, data, inputD) = getData()
-weight = RBM(data, hiddens, 0.5)
+weight = RBM(data, hiddens, 0.01)
+
+# modify weight data (average of abs = 1)
+for i in range(len(weight[0])):
+    
+    sumAbs = 0 # sum of absolute values
+    for j in range(len(weight)):
+        sumAbs += abs(weight[j][i])
+    avgAbs = sumAbs / len(weight) # average of absolute values
+
+    for j in range(len(weight)):
+        weight[j][i] = round(weight[j][i]/avgAbs, 6)
+
+print('normalized weight:')
+for i in range(len(weight)):
+    print(weight[i])
+
+# fill in data
+# find the least-square error hidden node
+lsh = -1 # index of least-square error hidden node
+elsh = 10000 # error of lsh
+
+for i in range(len(weight[0])):
+    error = 0 # square of error (using least-square)
+    for j in range(len(weight)):
+        if inputD[j] != '-': # find error for indexes where inputD is a number
+            er = int(inputD[j]) - weight[j][i]
+            error += (er * er)
+
+    # update lash
+    if error < elsh:
+        elsh = error
+        lsh = i
+
+print('')
+print('least-square hidden node: ' + str(lsh) + ' (error: ' + str(round(elsh, 6)) + ')')
+
+# fill in data
+for i in range(len(inputD)):
+    if inputD[i] == '-':
+        if weight[i][lsh] >= 0: inputD[i] = 1
+        else: inputD[i] = 0
+
+print('')
+print('final result: ')
+print(inputD)
