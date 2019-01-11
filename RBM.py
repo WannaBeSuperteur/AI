@@ -29,7 +29,7 @@ def getData():
     return (hiddens, data, inputD)
 
 (hiddens, data, inputD) = getData()
-weight = rp.RBM(data, hiddens, 0.01)
+weight = rp.RBM(data, hiddens, 0.01, 1)
 
 # modify weight data (average of abs = 1)
 for i in range(len(weight[0])):
