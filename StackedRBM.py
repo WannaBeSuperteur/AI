@@ -36,11 +36,7 @@ def sigmoidStocastic(value):
     if sigm >= 0.5: return 1
     else: return 0
 
-def StackedRBM(lr, fn):
-    # read data and make 'hiddens' array
-    (hid0, hid1, hid2, data, inputD) = getData(fn)
-    hiddens = [hid0, hid1, hid2]
-
+def StackedRBM(lr, fn, hiddens):
     # calculate final weight array (weight of hidden layer 2) using RBM
     weight0 = [] # weight for hidden layer 0
     weight1 = [] # weight for hidden layer 1
@@ -116,7 +112,11 @@ def StackedRBM(lr, fn):
 
 # execute stacked RBM
 if(__name__ == '__main__'):
-    (inputD, weight0, weight1, weight2) = StackedRBM(0.01, 'StackedRBM.txt')
+    # read data and make 'hiddens' array
+    (hid0, hid1, hid2, data, inputD) = getData('StackedRBM.txt')
+    hiddens = [hid0, hid1, hid2]
+    (inputD, weight0, weight1, weight2) = StackedRBM(0.01, 'StackedRBM.txt', hiddens)
+    
     print('')
     print('weight 0')
     for i in range(len(weight0)):
