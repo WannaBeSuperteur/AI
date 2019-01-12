@@ -108,14 +108,14 @@ def StackedRBM(lr, fn, hiddens, data):
                 print(weight2[j])
         print('')
 
-    return (inputD, weight0, weight1, weight2)
+    return (weight0, weight1, weight2)
 
 # execute stacked RBM
 if(__name__ == '__main__'):
     # read data and make 'hiddens' array
     (hid0, hid1, hid2, data, inputD) = getData('StackedRBM.txt')
     hiddens = [hid0, hid1, hid2]
-    (inputD, weight0, weight1, weight2) = StackedRBM(0.01, 'StackedRBM.txt', hiddens, data)
+    (weight0, weight1, weight2) = StackedRBM(0.01, 'StackedRBM.txt', hiddens, data)
     
     print('')
     print('weight 0')
