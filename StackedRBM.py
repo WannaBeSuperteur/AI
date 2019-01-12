@@ -21,7 +21,7 @@ def getData(fn):
     # read data
     for i in range(1, len(read)-1):
         read[i] = read[i].replace('\n', '')
-        row = read[i].split(' ')
+        row = read[i].split('/')[0].split(' ')
         for i in range(len(row)):
             row[i] = int(row[i])
         data.append(row)
