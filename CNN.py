@@ -374,16 +374,17 @@ maxVal = 0
 maxIndex = -1
 
 # print modified resultArrays
-if prt != 0: print('')
-print('**** modified result array ****')
-print('')
-for i in range(len(resultArrays)):
-    print('< image symbol: ' + str(data[i][0]) + ' >')
-    printStr = '['
-    for j in range(len(resultArrays[0])):
-        printStr += (' ' + str(round(resultArrays[i][j], 2)) + ' ')
-    print(str(printStr) + ' ]')
+if prt != 0:
     print('')
+    print('**** modified result array ****')
+    print('')
+    for i in range(len(resultArrays)):
+        print('< image symbol: ' + str(data[i][0]) + ' >')
+        printStr = '['
+        for j in range(len(resultArrays[0])):
+            printStr += (' ' + str(round(resultArrays[i][j], 2)) + ' ')
+        print(str(printStr) + ' ]')
+        print('')
 
 # make list of sumProduct
 listOfSumProduct = [] # list of symbol and sumproduct
