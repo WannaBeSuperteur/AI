@@ -246,8 +246,8 @@ def makeFilters(data, rows, cols, images, filtersize, filters, prt):
                 if data[imgn][1][rown+j][coln+k] == '#': count += 1
             temp.append(temp_)
 
-        # if count is less than 5
-        if count < 5: continue
+        # if count is less than half of elements
+        if count < filtersize*filtersize/2: continue
         
         flts.append(temp)
         i += 1
