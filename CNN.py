@@ -343,93 +343,94 @@ def CNN(data, rows, cols, images, filtersize, filters, flts, prt):
             print(str(printStr) + ' ]')
 
     return result
-                
-(data, rows, cols, images, filtersize, filters, testimgdata, prt) = getData()
 
-print('######## making CNN array ########')
-print('')
+if __name__ == '__main__':                
+    (data, rows, cols, images, filtersize, filters, testimgdata, prt) = getData()
 
-# make filters
-flts = makeFilters(data, rows, cols, images, filtersize, filters, prt)
-# CNN using the filter - data image
-resultArrays = CNN(data, rows, cols, images, filtersize, filters, flts, prt)
-
-# modify resultArrays -> sum = 1
-for i in range(len(resultArrays)):
-    Sum = 0
-    for j in range(len(resultArrays[0])):
-        Sum += resultArrays[i][j]
-    for j in range(len(resultArrays[0])):
-        resultArrays[i][j] /= Sum
-
-if prt != 0: print('')
-print('######## test image ########')
-print('')
-
-# CNN using the filter - test image
-testArray = CNN([testimgdata], rows, cols, 1, filtersize, filters, flts, prt)
-
-# return final prediction
-maxVal = 0
-maxIndex = -1
-
-# print modified resultArrays
-if prt != 0:
+    print('######## making CNN array ########')
     print('')
-    print('**** modified result array ****')
-    print('')
+
+    # make filters
+    flts = makeFilters(data, rows, cols, images, filtersize, filters, prt)
+    # CNN using the filter - data image
+    resultArrays = CNN(data, rows, cols, images, filtersize, filters, flts, prt)
+
+    # modify resultArrays -> sum = 1
     for i in range(len(resultArrays)):
-        print('< image symbol: ' + str(data[i][0]) + ' >')
-        printStr = '['
+        Sum = 0
         for j in range(len(resultArrays[0])):
-            printStr += (' ' + str(round(resultArrays[i][j], 2)) + ' ')
-        print(str(printStr) + ' ]')
+            Sum += resultArrays[i][j]
+        for j in range(len(resultArrays[0])):
+            resultArrays[i][j] /= Sum
+
+    if prt != 0: print('')
+    print('######## test image ########')
+    print('')
+
+    # CNN using the filter - test image
+    testArray = CNN([testimgdata], rows, cols, 1, filtersize, filters, flts, prt)
+
+    # return final prediction
+    maxVal = 0
+    maxIndex = -1
+
+    # print modified resultArrays
+    if prt != 0:
         print('')
+        print('**** modified result array ****')
+        print('')
+        for i in range(len(resultArrays)):
+            print('< image symbol: ' + str(data[i][0]) + ' >')
+            printStr = '['
+            for j in range(len(resultArrays[0])):
+                printStr += (' ' + str(round(resultArrays[i][j], 2)) + ' ')
+            print(str(printStr) + ' ]')
+            print('')
 
-# make list of sumProduct
-listOfSumProduct = [] # list of symbol and sumproduct
-for i in range(images):
-    sumProduct = 0
-    for j in range(len(testArray[0])):
-        sumProduct += resultArrays[i][j] * testArray[0][j]
-    listOfSumProduct.append([data[i][0], sumProduct])
+    # make list of sumProduct
+    listOfSumProduct = [] # list of symbol and sumproduct
+    for i in range(images):
+        sumProduct = 0
+        for j in range(len(testArray[0])):
+            sumProduct += resultArrays[i][j] * testArray[0][j]
+        listOfSumProduct.append([data[i][0], sumProduct])
 
-# print list of sumProduct
-for i in range(len(listOfSumProduct)):
-    print('sumProduct of image ' + str(listOfSumProduct[i][0]) + ': ' + str(round(listOfSumProduct[i][1], 6)))
+    # print list of sumProduct
+    for i in range(len(listOfSumProduct)):
+        print('sumProduct of image ' + str(listOfSumProduct[i][0]) + ': ' + str(round(listOfSumProduct[i][1], 6)))
 
-# group for each symbol
-listOfSumProduct.sort(key=lambda x:x[0])
+    # group for each symbol
+    listOfSumProduct.sort(key=lambda x:x[0])
 
-groupedListOfSumProduct = [] # info about each symbol group
-count = 0 # count of each symbol
-Sum = 0 # sum of sumProduct of each symbol
+    groupedListOfSumProduct = [] # info about each symbol group
+    count = 0 # count of each symbol
+    Sum = 0 # sum of sumProduct of each symbol
 
-for i in range(len(listOfSumProduct)):
-    count += 1
-    Sum += listOfSumProduct[i][1]
-    symbol = listOfSumProduct[i][0] # symbol of item
-    
-    if i < len(listOfSumProduct)-1:
-        if listOfSumProduct[i+1][0] == symbol: continue
+    for i in range(len(listOfSumProduct)):
+        count += 1
+        Sum += listOfSumProduct[i][1]
+        symbol = listOfSumProduct[i][0] # symbol of item
+        
+        if i < len(listOfSumProduct)-1:
+            if listOfSumProduct[i+1][0] == symbol: continue
 
-    # execute if new symbol
-    groupedListOfSumProduct.append([symbol, Sum/count])
-    count = 0
-    Sum = 0
+        # execute if new symbol
+        groupedListOfSumProduct.append([symbol, Sum/count])
+        count = 0
+        Sum = 0
 
-# find max average group
-maxGroup = 0
-maxVal = 0
-for i in range(len(groupedListOfSumProduct)):
-    if groupedListOfSumProduct[i][1] > maxVal:
-        maxVal = groupedListOfSumProduct[i][1]
-        maxGroup = i
+    # find max average group
+    maxGroup = 0
+    maxVal = 0
+    for i in range(len(groupedListOfSumProduct)):
+        if groupedListOfSumProduct[i][1] > maxVal:
+            maxVal = groupedListOfSumProduct[i][1]
+            maxGroup = i
 
-# print grouped list of sumProduct
-print('')
-for i in range(len(groupedListOfSumProduct)):
-    print('avg sumProduct of symbol ' + str(groupedListOfSumProduct[i][0]) + ': ' + str(round(groupedListOfSumProduct[i][1], 6)))
+    # print grouped list of sumProduct
+    print('')
+    for i in range(len(groupedListOfSumProduct)):
+        print('avg sumProduct of symbol ' + str(groupedListOfSumProduct[i][0]) + ': ' + str(round(groupedListOfSumProduct[i][1], 6)))
 
-print('')
-print('final prediction of ' + str(testimgdata[0]) + ': ' + str(groupedListOfSumProduct[maxGroup][0]))
+    print('')
+    print('final prediction of ' + str(testimgdata[0]) + ': ' + str(groupedListOfSumProduct[maxGroup][0]))
