@@ -105,7 +105,7 @@ def QLearning(rewards, moves):
             print('max reward      : ' + str(maxReward))
 
         # break when converged
-        if lastModifiedTimes * 1.5 + 5 < times: break
+        if lastModifiedTimes * 2 + 10 < times: break
         
 (rewards, moves) = getData()
 QLearning(rewards, moves)
