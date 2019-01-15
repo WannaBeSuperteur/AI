@@ -344,7 +344,7 @@ def CNN(data, rows, cols, images, filtersize, filters, flts, prt):
 
     return result
 
-if __name__ == '__main__':                
+def CNNmain():
     (data, rows, cols, images, filtersize, filters, testimgdata, prt) = getData()
 
     print('######## making CNN array ########')
@@ -434,3 +434,6 @@ if __name__ == '__main__':
 
     print('')
     print('final prediction of ' + str(testimgdata[0]) + ': ' + str(groupedListOfSumProduct[maxGroup][0]))
+
+if __name__ == '__main__':
+    CNNmain()
