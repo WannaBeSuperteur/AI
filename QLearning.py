@@ -79,7 +79,16 @@ def QLearning(rewards, moves):
                     if nextstate[i][2] > bestVal:
                         bestVal = nextstate[i][2]
                         bestIndex = i
-                state = lookup(rewards, 0, nextstate[i][1]) # update state
+
+                # best of next state (same value as best choice)
+                # choose best next state randomly
+                bestNextState = []
+                for i in range(len(nextstate)):
+                    if nextstate[i][2] == bestVal:
+                        bestNextState.append(nextstate[i])
+                selectBestNext = random.randint(0, len(bestNextState)-1)
+                
+                state = lookup(rewards, 0, bestNextState[selectBestNext][1]) # update state
                 nextActionIndex = i
 
             # get immediate reward r(s, a)
