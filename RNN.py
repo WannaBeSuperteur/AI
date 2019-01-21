@@ -10,7 +10,8 @@ def getData():
 
     temp = read[0].split('\n')[0].split(' ')
     steps = int(temp[0]) # number of steps
-    hNn = int(temp[1]) 
+    hNn = int(temp[1])
+    offset = int(temp[2]) # offset between input and destination data
     
     # read data to learn and test data
     tolearn = read[1].split('\n')[0]
@@ -18,7 +19,7 @@ def getData():
 
     prt = int(read[3]) # print data?
         
-    return (steps, hNn, tolearn, testdata, prt)
+    return (steps, hNn, tolearn, testdata, prt, offset)
 
 # activation function (tanh)
 def activate(value):
@@ -63,6 +64,26 @@ def forwardPropagation(input_, hiddeni, hidden_, outputi, output_, hNw, oNw, hNh
             outputi[i][j] = sumProduct
             output_[i][j] = activate(sumProduct)
 
+# print weight
+def printWeight(steps, hNn, oNn, hNw, oNw, hNhNw):
+    for t in range(steps):
+        print('** STEP ' + str(t) + ' **')
+        print('input-hidden weight')
+        for i in range(hNn):
+            print(' [' + str(i) + '] : ' + printArray(hNw[t][i]))
+        print('')
+        print('hidden-output weight')
+        for i in range(oNn):
+            print(' [' + str(i) + '] : ' + printArray(oNw[t][i]))
+        print('')
+
+    print('** HIDDEN-HIDDEN **')
+    for t in range(steps-1):
+        print('hidden-hidden weight')
+        for i in range(hNn):
+            print(' [' + str(i) + '] : ' + printArray(hNhNw[t][i]))
+        print('')
+
 # return mul of array
 def arrayMul(array1, array2):
     while str(array1)[1] != '[': array1 = [array1]
@@ -92,7 +113,12 @@ def vecD(vec1, vec2):
     return result
 
 # train Neural Network
-def RNN(steps, hNn, lr, tolearn, testdata, prt):
+def RNN(steps, hNn, lr, tolearn, testdata, prt, offset):
+
+    print('    +------------------+')
+    print('    |     TRAINING     |')
+    print('    +------------------+')
+    print('')
 
     # decide iNn (number of input neurons)
     alldata = tolearn + testdata
@@ -141,7 +167,7 @@ def RNN(steps, hNn, lr, tolearn, testdata, prt):
         # initialize input and destination data(step 0 to iNn-1)
         for i in range(steps):
             input_[i][listInp.index(tolearn[i])] = 0.75
-            dest_[i][listInp.index(tolearn[i+1])] = 0.75
+            dest_[i][listInp.index(tolearn[i+offset])] = 0.75
 
         ## forward propagation
         forwardPropagation(input_, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw)
@@ -250,21 +276,7 @@ def RNN(steps, hNn, lr, tolearn, testdata, prt):
         # print changed weight
         if prt >= 3:
             print('**** WEIGHT CHANGED ****')
-            for t in range(steps):
-                print('** STEP ' + str(t) + ' **')
-                print('input-hidden weight')
-                for i in range(hNn):
-                    print(' [' + str(i) + '] : ' + printArray(hNw[t][i]))
-                print('')
-                print('hidden-output weight')
-                for i in range(oNn):
-                    print(' [' + str(i) + '] : ' + printArray(oNw[t][i]))
-                print('')
-            for t in range(steps-1):
-                print('hidden-hidden weight')
-                for i in range(hNn):
-                    print(' [' + str(i) + '] : ' + printArray(hNhNw[t][i]))
-                print('')
+            printWeight(steps, hNn, oNn, hNw, oNw, hNhNw)
 
         ## calculate sum of error
         totalErrorSum = 0 # sum of errorSum
@@ -291,14 +303,46 @@ def RNN(steps, hNn, lr, tolearn, testdata, prt):
                 print('hidden layer: ' + printArray(hidden_[i]))
                 print('output layer: ' + printArray(output_[i]))
                 print('')
+
+            # print weight
+            print('**** FINAL WEIGHT INFO ****')
+            printWeight(steps, hNn, oNn, hNw, oNw, hNhNw)
+            
             return (listInp, hNw, oNw, hNhNw, steps)
+
+# print max value
+def printMax(array, listInp):
+    
+    result = ''
+    for i in range(len(array)):
+        maxIndex = 0 # index of element that has max value
+        maxValue = 0 # value of element at maxIndex
+
+        for j in range(len(array[0])):    
+            if array[i][j] > maxValue:
+                maxIndex = j
+                maxValue = array[i][j]
+
+        val = str(listInp[maxIndex])
+        print('value        : ' + val)
+        result += val
+    print('result : ' + result)
 
 # return output using RNN layers
 def getOutput(testdata, listInp, hNw, oNw, hNhNw, steps):
 
+    print('    +------------------+')
+    print('    |       TEST       |')
+    print('    +------------------+')
+    print('')
+
     iNn = len(listInp) # number of input neurons in each step
-    hNn = len(hNw) # number of hidden neurons in each step
+    hNn = len(hNw[0]) # number of hidden neurons in each step
     oNn = len(listInp) # number of output neurons in each step
+
+    # print weight
+    print('**** WEIGHT ****')
+    printWeight(steps, hNn, oNn, hNw, oNw, hNhNw)
     
     # make data
     input_ = [[0.25]*iNn for i in range(steps)] # input data (test data)
@@ -309,7 +353,12 @@ def getOutput(testdata, listInp, hNw, oNw, hNhNw, steps):
     outputi = [[0]*oNn for i in range(steps)] # output layer input
     output_ = [[0]*oNn for i in range(steps)] # output layer output
 
-    print('******** OUTPUT ********')
+    # find max element in input layer
+    print('******** TEST INPUT ********')
+    printMax(input_, listInp)
+    print('')
+    
+    print('******** TEST OUTPUT ********')
 
     # calculate output
     ## forward propagation
@@ -323,24 +372,10 @@ def getOutput(testdata, listInp, hNw, oNw, hNhNw, steps):
         print('')
 
     # find max element in output layer
-    result = ''
-    for i in range(len(output_)):
-        maxIndex = 0 # index of element that has max value
-        maxValue = 0 # value of element at maxIndex
-
-        for j in range(len(output_[0])):    
-            if output_[i][j] > maxValue:
-                maxIndex = j
-                maxValue = output_[i][j]
-
-        val = str(listInp[maxIndex])
-        print('value        : ' + val)
-        result += val
-
-    print('result : ' + result)
+    printMax(output_, listInp)
         
-(steps, hNn, tolearn, testdata, prt) = getData()
+(steps, hNn, tolearn, testdata, prt, offset) = getData()
 
 # make layers using RNN
-(listInp, hNw, oNw, hNhNw, steps) = RNN(steps, hNn, 3.25, tolearn, testdata, prt)
+(listInp, hNw, oNw, hNhNw, steps) = RNN(steps, hNn, 3.25, tolearn, testdata, prt, offset)
 getOutput(testdata, listInp, hNw, oNw, hNhNw, steps)
