@@ -397,7 +397,7 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
                     before = str(round(oNw_[i][j], 6))
                     after = str(round(oNw[i][j], 6))
                     print('[ hidden2N ' + str(j) + ' ] weight = ' + before + '->' + after)
-        
-(input_, output_, testdata) = getData()
 
-Backpropagation(input_, output_, 6, 6, 6, 3.25, -1, testdata, 0)
+if __name__ == '__main__':
+    (input_, output_, testdata) = getData()
+    Backpropagation(input_, output_, 6, 6, 6, 3.25, -2, testdata, 0)
