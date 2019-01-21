@@ -135,7 +135,7 @@ def RNN(steps, hNn, lr, tolearn, testdata, prt):
         count += 1
         if prt >= 1:
             print('******** ROUND ' + str(count) + ' ********')
-            print('')
+            if prt >= 2: print('')
         
         ## initialize
         # initialize input and destination data(step 0 to iNn-1)
@@ -214,10 +214,10 @@ def RNN(steps, hNn, lr, tolearn, testdata, prt):
                 for u in range(t-1, k-1, -1):
                     # calculate next value of S[layer] -> temp2
                     for i in range(hNn):
-                        temp[u+1][i] = 0
+                        temp[u][i] = 0
                         for j in range(hNn):
-                            temp[u+1][i] += temp[u+2][j] * hNhNw[u][j][i]
-                        temp[u+1][i] *= (hidden_[u][j] * (1-hidden_[u][j]))
+                            temp[u][i] += temp[u+1][j] * hNhNw[u][j][i]
+                        temp[u][i] *= (hidden_[u][j] * (1-hidden_[u][j]))
                         
                 # calculate final dEdW
                 for i in range(hNn):
@@ -276,7 +276,7 @@ def RNN(steps, hNn, lr, tolearn, testdata, prt):
 
             if prt >= 1: print('Sum of error at step ' + str(i) + ': ' + str(round(errorSum, 6)))
 
-        if prt >= 1: print('')
+        if prt >= 2: print('')
         if prt >= 0 or count % 100 == 0:
             print('Sum of error (ROUND ' + str(count) + '): ' + str(round(totalErrorSum, 6)))
             if prt == 0 and count % 10 == 0: print('')
@@ -291,27 +291,28 @@ def RNN(steps, hNn, lr, tolearn, testdata, prt):
                 print('hidden layer: ' + printArray(hidden_[i]))
                 print('output layer: ' + printArray(output_[i]))
                 print('')
-            return (hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw)
+            return (listInp, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw)
 
 # return output using RNN layers
-def getOutput(testdata, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw):
-
-    setInp = set(testdata) # set of input data (by character)
-    listInp = list(setInp) # make list of characters in 'tolearn' and 'testdata'
+def getOutput(listInp, testdata, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw):
 
     steps = len(hidden_) # number of steps
-    iNn = len(setInp) # number of input neurons for each hidden data
+    iNn = len(listInp) # number of input neurons for each hidden data
     hNn = len(hidden_[0]) # number of hidden neurons for each hidden data
-    oNn = len(setInp) # number of output neurons for each hidden data
-
-    # initialize hidden and output values
-    hidden_ = [[0]*hNn for i in range(steps)]
-    output_ = [[0]*oNn for i in range(steps)]
+    oNn = len(listInp) # number of output neurons for each hidden data
     
     # make input data
-    input_ = [[0]*iNn for i in range(steps)]
+    input_ = [[0.25]*iNn for i in range(steps)]
     for i in range(steps):
-        input_[i][listInp.index(testdata[i])] = 1
+        input_[i][listInp.index(testdata[i])] = 0.75
+
+    print('******** OUTPUT ********')
+    for i in range(steps):
+        print('< STEP ' + str(i) + ' >')
+        print('input  layer : ' + printArray(input_[i]))
+        print('hidden layer : ' + printArray(hidden_[i]))
+        print('output layer : ' + printArray(output_[i]))
+        print('')
 
     # calculate output
     ## forward propagation
@@ -335,5 +336,5 @@ def getOutput(testdata, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw):
 (steps, hNn, tolearn, testdata, prt) = getData()
 
 # make layers using RNN
-(hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw) = RNN(steps, hNn, 3.25, tolearn, testdata, prt)
-getOutput(testdata, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw)
+(listInp, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw) = RNN(steps, hNn, 3.25, tolearn, testdata, prt)
+getOutput(listInp, testdata, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw)
