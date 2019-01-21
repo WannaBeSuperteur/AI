@@ -2,9 +2,9 @@ import math
 import random
 
 # read data from file
-def getData():
+def getData(fn):
     # get data
-    file = open('QLearning.txt', 'r')
+    file = open(fn, 'r')
     read = file.readlines()
     file.close
 
@@ -115,6 +115,7 @@ def QLearning(rewards, moves):
 
         # break when converged
         if lastModifiedTimes * 2 + 10 < times: break
-        
-(rewards, moves) = getData()
-QLearning(rewards, moves)
+
+if __name__ == '__main__':
+    (rewards, moves) = getData('QLearning.txt')
+    QLearning(rewards, moves)
