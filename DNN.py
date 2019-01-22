@@ -32,7 +32,7 @@ def sigmoid(value, stocastic):
     return 1/(1+math.exp(-value))
 
 # forward propagation
-def forward(input_, d, stoc, printDetail, last, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNw, oNt):
+def forward(input_, d, stoc, printDetail, last, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw):
     # input layer -> hidden layer 0
     # j INPUTs and i HIDDEN0s
     hidden0Input = [] # hidden layer 0 input
@@ -250,7 +250,7 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
                 if last <= 0: print('desired output: ' + str(output_[d]))
 
             # forward propagation
-            (hidden0Input, hidden0Output, hidden1Input, hidden1Output, hidden2Input, hidden2Output, outputInput, outputOutput) = forward(input_, d, stoc, printDetail, last, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNw, oNt)
+            (hidden0Input, hidden0Output, hidden1Input, hidden1Output, hidden2Input, hidden2Output, outputInput, outputOutput) = forward(input_, d, stoc, printDetail, last, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw)
 
             # for test data, no need of backpropagation
             if last == 1: break
@@ -408,7 +408,7 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
                     print('[ hidden2N ' + str(j) + ' ] weight = ' + before + '->' + after)
 
     # return layer info (number of neurons, thresholds and weights)
-    return (iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNw, oNt)
+    return (iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw)
 
 if __name__ == '__main__':
     (input_, output_, testdata) = getData()
