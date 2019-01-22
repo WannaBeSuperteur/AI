@@ -32,7 +32,7 @@ def sigmoid(value, stocastic):
     return 1/(1+math.exp(-value))
 
 # train Neural Network
-def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata, stoc):
+def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata, stoc, wReturn):
 
     iNn = len(input_[0]) # number of input neurons
     oNn = len(output_[0]) # number of output neurons
@@ -143,7 +143,9 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
         for d in range(len(input_)):
             
             # if last loop, about test data
-            if last == 1: input_[d] = testdata
+            if last == 1:
+                if wReturn != 0: return (h0Nw, h1Nw, h2Nw, oNw)
+                input_[d] = testdata
             
             if printDetail >= 2 or last == 1:
                 print('')
@@ -400,4 +402,4 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
 
 if __name__ == '__main__':
     (input_, output_, testdata) = getData()
-    Backpropagation(input_, output_, 6, 6, 6, 3.25, -2, testdata, 0)
+    Backpropagation(input_, output_, 6, 6, 6, 3.25, -2, testdata, 0, 0)
