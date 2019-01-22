@@ -31,6 +31,102 @@ def sigmoid(value, stocastic):
     # basic sigmoid function
     return 1/(1+math.exp(-value))
 
+# forward propagation
+def forward(input_, d, stoc, printDetail, last, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNw, oNt):
+    # input layer -> hidden layer 0
+    # j INPUTs and i HIDDEN0s
+    hidden0Input = [] # hidden layer 0 input
+    for i in range(h0Nn):
+        hX = -h0Nt[i]
+        for j in range(iNn):
+            hX += h0Nw[i][j]*float(input_[d][j])
+        hidden0Input.append(hX)
+
+    if printDetail >= 2 or last == 1:
+        his = 'Hidden Layer 1 Input: [ '
+        for i in range(h0Nn): his += str(round(hidden0Input[i], 6)) + '  '
+        print(his + ']')
+
+    # find hidden layer 0 output
+    hidden0Output = [] # hidden layer 0 output
+    for i in range(h0Nn): hidden0Output.append(sigmoid(hidden0Input[i], stoc))
+
+    if printDetail >= 2 or last == 1:
+        hos = 'Hidden Layer 0 Output: [ '
+        for i in range(h0Nn): hos += str(round(hidden0Output[i], 6)) + '  '
+        print(hos + ']')
+
+    # hidden layer 0 -> hidden layer 1
+    # j HIDDEN0s and i HIDDEN1s
+    hidden1Input = [] # hidden layer 1 input
+    for i in range(h1Nn):
+        hX = -h1Nt[i]
+        for j in range(h0Nn):
+            hX += h1Nw[i][j]*float(hidden0Output[j])
+        hidden1Input.append(hX)
+
+    if printDetail >= 2 or last == 1:
+        his = 'Hidden Layer 1 Input: [ '
+        for i in range(h1Nn): his += str(round(hidden1Input[i], 6)) + '  '
+        print(his + ']')
+
+    # find hidden layer 1 output
+    hidden1Output = [] # hidden layer 1 output
+    for i in range(h1Nn): hidden1Output.append(sigmoid(hidden1Input[i], stoc))
+
+    if printDetail >= 2 or last == 1:
+        hos = 'Hidden Layer 1 Output: [ '
+        for i in range(h1Nn): hos += str(round(hidden1Output[i], 6)) + '  '
+        print(hos + ']')
+
+    # hidden layer 1 -> hidden layer 2
+    # j HIDDEN1s and i HIDDEN2s
+    hidden2Input = [] # hidden layer 2 input
+    for i in range(h2Nn):
+        hX = -h2Nt[i]
+        for j in range(h1Nn):
+            hX += h2Nw[i][j]*float(hidden1Output[j])
+        hidden2Input.append(hX)
+
+    if printDetail >= 2 or last == 1:
+        his = 'Hidden Layer 2 Input: [ '
+        for i in range(h2Nn): his += str(round(hidden2Input[i], 6)) + '  '
+        print(his + ']')
+
+    # find hidden layer 2 output
+    hidden2Output = [] # hidden layer 2 output
+    for i in range(h2Nn): hidden2Output.append(sigmoid(hidden2Input[i], stoc))
+
+    if printDetail >= 2 or last == 1:
+        hos = 'Hidden Layer 2 Output: [ '
+        for i in range(h2Nn): hos += str(round(hidden2Output[i], 6)) + '  '
+        print(hos + ']')
+
+    # hidden layer 2 -> output layer
+    # j HIDDEN2s and i OUTPUTs
+    outputInput = [] # output layer input
+    for i in range(oNn):
+        oX = -oNt[i]
+        for j in range(h2Nn):
+            oX += oNw[i][j]*float(hidden2Output[j])
+        outputInput.append(oX)
+
+    if printDetail >= 2 or last == 1:
+        ois = 'Output Layer Input: [ '
+        for i in range(oNn): ois += str(round(outputInput[i], 6)) + '  '
+        print(ois + ']')
+
+    # find output layer output
+    outputOutput = [] # output layer output
+    for i in range(oNn): outputOutput.append(sigmoid(outputInput[i], stoc))
+
+    if printDetail >= 2 or last == 1:
+        oos = 'Output Layer Output: [ '
+        for i in range(oNn): oos += str(round(outputOutput[i], 6)) + '  '
+        print(oos + ']')
+
+    return (hidden0Input, hidden0Output, hidden1Input, hidden1Output, hidden2Input, hidden2Output, outputInput, outputOutput)
+
 # train Neural Network
 def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata, stoc, wReturn):
 
@@ -152,98 +248,9 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
                 print('input data    : ' + str(input_[d]))
                 # do not print output if last loop
                 if last <= 0: print('desired output: ' + str(output_[d]))
-            
-            # input layer -> hidden layer 0
-            # j INPUTs and i HIDDEN0s
-            hidden0Input = [] # hidden layer 0 input
-            for i in range(h0Nn):
-                hX = -h0Nt[i]
-                for j in range(iNn):
-                    hX += h0Nw[i][j]*float(input_[d][j])
-                hidden0Input.append(hX)
 
-            if printDetail >= 2 or last == 1:
-                his = 'Hidden Layer 1 Input: [ '
-                for i in range(h0Nn): his += str(round(hidden0Input[i], 6)) + '  '
-                print(his + ']')
-
-            # find hidden layer 0 output
-            hidden0Output = [] # hidden layer 0 output
-            for i in range(h0Nn): hidden0Output.append(sigmoid(hidden0Input[i], stoc))
-
-            if printDetail >= 2 or last == 1:
-                hos = 'Hidden Layer 0 Output: [ '
-                for i in range(h0Nn): hos += str(round(hidden0Output[i], 6)) + '  '
-                print(hos + ']')
-
-            # hidden layer 0 -> hidden layer 1
-            # j HIDDEN0s and i HIDDEN1s
-            hidden1Input = [] # hidden layer 1 input
-            for i in range(h1Nn):
-                hX = -h1Nt[i]
-                for j in range(h0Nn):
-                    hX += h1Nw[i][j]*float(hidden0Output[j])
-                hidden1Input.append(hX)
-
-            if printDetail >= 2 or last == 1:
-                his = 'Hidden Layer 1 Input: [ '
-                for i in range(h1Nn): his += str(round(hidden1Input[i], 6)) + '  '
-                print(his + ']')
-
-            # find hidden layer 1 output
-            hidden1Output = [] # hidden layer 1 output
-            for i in range(h1Nn): hidden1Output.append(sigmoid(hidden1Input[i], stoc))
-
-            if printDetail >= 2 or last == 1:
-                hos = 'Hidden Layer 1 Output: [ '
-                for i in range(h1Nn): hos += str(round(hidden1Output[i], 6)) + '  '
-                print(hos + ']')
-
-            # hidden layer 1 -> hidden layer 2
-            # j HIDDEN1s and i HIDDEN2s
-            hidden2Input = [] # hidden layer 2 input
-            for i in range(h2Nn):
-                hX = -h2Nt[i]
-                for j in range(h1Nn):
-                    hX += h2Nw[i][j]*float(hidden1Output[j])
-                hidden2Input.append(hX)
-
-            if printDetail >= 2 or last == 1:
-                his = 'Hidden Layer 2 Input: [ '
-                for i in range(h2Nn): his += str(round(hidden2Input[i], 6)) + '  '
-                print(his + ']')
-
-            # find hidden layer 2 output
-            hidden2Output = [] # hidden layer 2 output
-            for i in range(h2Nn): hidden2Output.append(sigmoid(hidden2Input[i], stoc))
-
-            if printDetail >= 2 or last == 1:
-                hos = 'Hidden Layer 2 Output: [ '
-                for i in range(h2Nn): hos += str(round(hidden2Output[i], 6)) + '  '
-                print(hos + ']')
-
-            # hidden layer 2 -> output layer
-            # j HIDDEN2s and i OUTPUTs
-            outputInput = [] # output layer input
-            for i in range(oNn):
-                oX = -oNt[i]
-                for j in range(h2Nn):
-                    oX += oNw[i][j]*float(hidden2Output[j])
-                outputInput.append(oX)
-
-            if printDetail >= 2 or last == 1:
-                ois = 'Output Layer Input: [ '
-                for i in range(oNn): ois += str(round(outputInput[i], 6)) + '  '
-                print(ois + ']')
-
-            # find output layer output
-            outputOutput = [] # output layer output
-            for i in range(oNn): outputOutput.append(sigmoid(outputInput[i], stoc))
-
-            if printDetail >= 2 or last == 1:
-                oos = 'Output Layer Output: [ '
-                for i in range(oNn): oos += str(round(outputOutput[i], 6)) + '  '
-                print(oos + ']')
+            # forward propagation
+            (hidden0Input, hidden0Output, hidden1Input, hidden1Output, hidden2Input, hidden2Output, outputInput, outputOutput) = forward(input_, d, stoc, printDetail, last, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNw, oNt)
 
             # for test data, no need of backpropagation
             if last == 1: break
