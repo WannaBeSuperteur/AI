@@ -407,6 +407,9 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
                     after = str(round(oNw[i][j], 6))
                     print('[ hidden2N ' + str(j) + ' ] weight = ' + before + '->' + after)
 
+    # return layer info (number of neurons, thresholds and weights)
+    return (iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNw, oNt)
+
 if __name__ == '__main__':
     (input_, output_, testdata) = getData()
     Backpropagation(input_, output_, 6, 6, 6, 3.25, -2, testdata, 0, 0)
