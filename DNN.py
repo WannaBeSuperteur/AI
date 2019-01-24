@@ -127,6 +127,108 @@ def forward(input_, d, stoc, printDetail, last, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1N
 
     return (hidden0Input, hidden0Output, hidden1Input, hidden1Output, hidden2Input, hidden2Output, outputInput, outputOutput)
 
+# backpropagation (return updated weights)
+def Back(hidden0Output, hidden1Output, hidden2Output, outputOutput, iNn, h0Nn, h0Nw, h1Nn, h1Nw, h2Nn, h2Nw, oNn, oNw, d, lr):
+    # find So and Sh
+    # So = (do-Oo)*Oo*(1-Oo)
+    # Sh2 = Sum(So*Wh2o) * Oh2*(1-Oh2)
+    # Sh1 = Sum(Sh2*Wh1h2) * Oh1*(1-Oh1)
+    # Sh0 = Sum(Sh1*Wh0h1) * Oh0*(1-Oh0)
+    So = [] # for each output layer neuron
+    for i in range(oNn):
+        Oo = outputOutput[i]
+        So.append((float(output_[d][i])-Oo)*Oo*(1-Oo))
+                
+    Sh2 = [] # for each hidden layer 2 neuron
+    Sh1 = [] # for each hidden layer 1 neuron
+    Sh0 = [] # for each hidden layer 0 neuron
+    for i in range(h2Nn):
+        Sum = 0
+        for j in range(oNn):
+            Sum += So[j]*oNw[j][i]
+        Oh2 = hidden2Output[i]
+        Sh2.append(Sum*Oh2*(1-Oh2))
+    for i in range(h1Nn):
+        Sum = 0
+        for j in range(h2Nn):
+            Sum += Sh2[j]*h2Nw[j][i]
+        Oh1 = hidden1Output[i]
+        Sh1.append(Sum*Oh1*(1-Oh1))
+    for i in range(h0Nn):
+        Sum = 0
+        for j in range(h1Nn):
+            Sum += Sh1[j]*h1Nw[j][i]
+        Oh0 = hidden0Output[i]
+        Sh0.append(Sum*Oh0*(1-Oh0))
+
+    # find gradient
+    H2Ograd = [] # gradient between HIDDEN 2 and OUTPUT layer
+    H1H2grad = [] # gradient between HIDDEN 1 and HIDDEN 2 layer
+    H0H1grad = [] # gradient between HIDDEN 0 and HIDDEN 1 layer
+    IH0grad = [] # gradient between INPUT and HIDDEN 0 layer
+            
+    # j HIDDENs and i OUTPUTs
+    # dE/dWh2o = (do-Oo)*Oo*(1-Oo)*Oh2 = So*Oh2
+    for i in range(oNn):
+        Ograd = []
+        for j in range(h2Nn):
+            Ograd.append(So[i]*hidden2Output[j])
+        H2Ograd.append(Ograd)
+                    
+    # j HIDDEN1s and i HIDDEN2s
+    # dE/dWh1h2 = Sum{(do-Oo)*Oo*(1-Oo)*Wh2o} * Oh2*(1-Oh2)*Oh1
+    #         = Sum(So*Wh2o) * Oh2*(1-Oh2)*Oh1 = Sh2*Oh1
+    for i in range(h2Nn):
+        H2grad = []
+        Oh2 = hidden2Output[i]
+        for j in range(h1Nn):
+            H2grad.append(Sh2[i]*float(hidden1Output[j]))
+        H1H2grad.append(H2grad)
+
+    # j HIDDEN0s and i HIDDEN1s
+    # dE/dWh0h1 = Sh1*Oh0
+    for i in range(h1Nn):
+        H1grad = []
+        Oh1 = hidden1Output[i]
+        for j in range(h0Nn):
+            H1grad.append(Sh1[i]*float(hidden0Output[j]))
+        H0H1grad.append(H1grad)
+
+    # j INPUTs and, i HIDDEN0s
+    # dE/dWih0 = Sh0*Xi
+    for i in range(h0Nn):
+        H0grad = []
+        Oh0 = hidden0Output[i]
+        for j in range(iNn):
+            H0grad.append(Sh0[i]*float(input_[d][j]))
+        IH0grad.append(H0grad)
+
+    # update Hidden2-Output weights (Wh2o += lr*So*Oh2)
+    # j HIDDEN2s and i OUTPUTs
+    for i in range(oNn):
+        for j in range(h2Nn):
+            oNw[i][j] += lr*So[i]*hidden2Output[j]
+
+    # update Hidden1-Hidden2 weights (Wh1h2 += lr*Sh2*Oh1)
+    # j HIDDEN1s and i HIDDEN2s
+    for i in range(h2Nn):
+        for j in range(h1Nn):
+            h2Nw[i][j] += lr*Sh2[i]*hidden1Output[j]
+
+    # update Hidden0-Hidden1 weights (Wh0h1 += lr*Sh1*Oh0)
+    # j HIDDEN0s and i HIDDEN1s
+    for i in range(h1Nn):
+        for j in range(h0Nn):
+            h1Nw[i][j] += lr*Sh1[i]*hidden0Output[j]
+
+    # update Input-Hidden0 weights (Wih0 += lr*Sh0*Xi)
+    # j INPUTs and i HIDDEN0s
+    for i in range(h0Nn):
+        for j in range(iNn):
+            h0Nw[i][j] += lr*Sh0[i]*float(input_[d][j])
+
+    return (h0Nw, h1Nw, h2Nw, oNw)
+
 # train Neural Network
 def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata, stoc, wReturn):
 
@@ -255,103 +357,8 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
             # for test data, no need of backpropagation
             if last == 1: break
 
-            # find So and Sh
-            # So = (do-Oo)*Oo*(1-Oo)
-            # Sh2 = Sum(So*Wh2o) * Oh2*(1-Oh2)
-            # Sh1 = Sum(Sh2*Wh1h2) * Oh1*(1-Oh1)
-            # Sh0 = Sum(Sh1*Wh0h1) * Oh0*(1-Oh0)
-            So = [] # for each output layer neuron
-            for i in range(oNn):
-                Oo = outputOutput[i]
-                So.append((float(output_[d][i])-Oo)*Oo*(1-Oo))
-                
-            Sh2 = [] # for each hidden layer 2 neuron
-            Sh1 = [] # for each hidden layer 1 neuron
-            Sh0 = [] # for each hidden layer 0 neuron
-            for i in range(h2Nn):
-                Sum = 0
-                for j in range(oNn):
-                    Sum += So[j]*oNw[j][i]
-                Oh2 = hidden2Output[i]
-                Sh2.append(Sum*Oh2*(1-Oh2))
-            for i in range(h1Nn):
-                Sum = 0
-                for j in range(h2Nn):
-                    Sum += Sh2[j]*h2Nw[j][i]
-                Oh1 = hidden1Output[i]
-                Sh1.append(Sum*Oh1*(1-Oh1))
-            for i in range(h0Nn):
-                Sum = 0
-                for j in range(h1Nn):
-                    Sum += Sh1[j]*h1Nw[j][i]
-                Oh0 = hidden0Output[i]
-                Sh0.append(Sum*Oh0*(1-Oh0))
-
-            # find gradient
-            H2Ograd = [] # gradient between HIDDEN 2 and OUTPUT layer
-            H1H2grad = [] # gradient between HIDDEN 1 and HIDDEN 2 layer
-            H0H1grad = [] # gradient between HIDDEN 0 and HIDDEN 1 layer
-            IH0grad = [] # gradient between INPUT and HIDDEN 0 layer
-            
-            # j HIDDENs and i OUTPUTs
-            # dE/dWh2o = (do-Oo)*Oo*(1-Oo)*Oh2 = So*Oh2
-            for i in range(oNn):
-                Ograd = []
-                for j in range(h2Nn):
-                    Ograd.append(So[i]*hidden2Output[j])
-                H2Ograd.append(Ograd)
-                    
-            # j HIDDEN1s and i HIDDEN2s
-            # dE/dWh1h2 = Sum{(do-Oo)*Oo*(1-Oo)*Wh2o} * Oh2*(1-Oh2)*Oh1
-            #         = Sum(So*Wh2o) * Oh2*(1-Oh2)*Oh1 = Sh2*Oh1
-            for i in range(h2Nn):
-                H2grad = []
-                Oh2 = hidden2Output[i]
-                for j in range(h1Nn):
-                    H2grad.append(Sh2[i]*float(hidden1Output[j]))
-                H1H2grad.append(H2grad)
-
-            # j HIDDEN0s and i HIDDEN1s
-            # dE/dWh0h1 = Sh1*Oh0
-            for i in range(h1Nn):
-                H1grad = []
-                Oh1 = hidden1Output[i]
-                for j in range(h0Nn):
-                    H1grad.append(Sh1[i]*float(hidden0Output[j]))
-                H0H1grad.append(H1grad)
-
-            # j INPUTs and, i HIDDEN0s
-            # dE/dWih0 = Sh0*Xi
-            for i in range(h0Nn):
-                H0grad = []
-                Oh0 = hidden0Output[i]
-                for j in range(iNn):
-                    H0grad.append(Sh0[i]*float(input_[d][j]))
-                IH0grad.append(H0grad)
-
-            # update Hidden2-Output weights (Wh2o += lr*So*Oh2)
-            # j HIDDEN2s and i OUTPUTs
-            for i in range(oNn):
-                for j in range(h2Nn):
-                    oNw[i][j] += lr*So[i]*hidden2Output[j]
-
-            # update Hidden1-Hidden2 weights (Wh1h2 += lr*Sh2*Oh1)
-            # j HIDDEN1s and i HIDDEN2s
-            for i in range(h2Nn):
-                for j in range(h1Nn):
-                    h2Nw[i][j] += lr*Sh2[i]*hidden1Output[j]
-
-            # update Hidden0-Hidden1 weights (Wh0h1 += lr*Sh1*Oh0)
-            # j HIDDEN0s and i HIDDEN1s
-            for i in range(h1Nn):
-                for j in range(h0Nn):
-                    h1Nw[i][j] += lr*Sh1[i]*hidden0Output[j]
-
-            # update Input-Hidden0 weights (Wih0 += lr*Sh0*Xi)
-            # j INPUTs and i HIDDEN0s
-            for i in range(h0Nn):
-                for j in range(iNn):
-                    h0Nw[i][j] += lr*Sh0[i]*float(input_[d][j])
+            # backpropagation
+            (h0Nw, h1Nw, h2Nw, oNw) = Back(hidden0Output, hidden1Output, hidden2Output, outputOutput, iNn, h0Nn, h0Nw, h1Nn, h1Nw, h2Nn, h2Nw, oNn, oNw, d, lr)
 
             # calculate the sum of error
             if printDetail >= 2: print('')
