@@ -50,7 +50,7 @@ def printArray(array, n, align):
     return (result + ']')
 
 # make list of next action (id of state) based on now state
-def makeActionList(stateT, state, actions, rows, cols):
+def makeActionList(state, actions, rows, cols):
     actList = []
 
     if actions == 4 or actions == 8:        
@@ -165,8 +165,8 @@ def DeepQlearning(data, lr, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate,
     oNw = [] # for output layer
     # threshold
     h0Nt = [] # for hidden layer 0
-    h1Nt = [] # for hidden layer 0
-    h2Nt = [] # for hidden layer 0
+    h1Nt = [] # for hidden layer 1
+    h2Nt = [] # for hidden layer 2
     oNt = [] # for output layer
 
     # initialize
@@ -204,7 +204,7 @@ def DeepQlearning(data, lr, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate,
             output_ = [] # list of output (value of sigmoid(reward) for each next action)
 
             # add actions            
-            actList = makeActionList(stateT, state, actions, rows, cols)
+            actList = makeActionList(state, actions, rows, cols)
 
             # print info
             if prtinfo != 0:
@@ -234,7 +234,7 @@ def DeepQlearning(data, lr, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate,
                 # get immediate reward
                 value = immedT[tempState][1]
                 # get max reward
-                tempActList = makeActionList(stateT, tempState, actions, rows, cols)
+                tempActList = makeActionList(tempState, actions, rows, cols)
                 maxReward = 0.0
                 for i in range(len(tempActList)):
                     # check if '-'
@@ -340,7 +340,7 @@ def test(data, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, o
         input_ = [float(int(state / cols)), float(int(state % cols))]
 
         # add actions            
-        actList = makeActionList(stateT, state, actions, rows, cols)
+        actList = makeActionList(state, actions, rows, cols)
         
         # forward propagation
         (hidden0Input, hidden0Output, hidden1Input, hidden1Output, hidden2Input, hidden2Output, outputInput, outputOutput) = DNN.forward([input_], 0, 0, -2, 0, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw)
