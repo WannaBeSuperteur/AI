@@ -18,13 +18,14 @@ def getData():
     h2Nn = int(x[4]) # number of neurons in hidden 2 layer
     prtinfo = int(x[5])
     prtstate = int(x[6])
+    onehot = int(x[7]) # if this value not equals 0, use one-hot DNN input
 
     # read data
     data = []
     for i in range(1, len(read)):
         data.append(read[i].split('\n')[0].split(' '))
         
-    return (data, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate)
+    return (data, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate, onehot)
 
 # activation function
 def sigmoid(value):
@@ -151,7 +152,7 @@ def initializeTable(data, prt):
     return (rows, cols, stateT, immedT)
 
 # do Q Learning with Deep Neural Network
-def DeepQlearning(data, lr, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate):
+def DeepQlearning(data, lr, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate, onehot):
     # make table including information about each state
     (rows, cols, stateT, immedT) = initializeTable(data, 1)
 
@@ -189,7 +190,13 @@ def DeepQlearning(data, lr, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate)
             prevState = state # previous state
 
             # input : state
-            input_ = [float(int(prevState / cols)), float(int(prevState % cols))]
+            input_ = []
+            if onehot != 0:
+                for i in range(rows*cols):
+                    if i == state: input_.append(1.0)
+                    else: input_.append(0.0)
+            else:
+                input_ = [float(int(prevState / cols)), float(int(prevState % cols))]
 
             # output : result of each action (number of neurons == number of actions)
             # actions->4 : UP/DOWN/LEFT/RIGHT, actions->8 : UP/DOWN/LEFT/RIGHT/UP-LEFT/.../DOWN-RIGHT
@@ -342,6 +349,6 @@ def test(data, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, o
         state = takeBest(stateT, actList, outputOutput, 999)
         print('state changed: ' + str(stateT[prevState][0]) + '->' + str(stateT[state][0]))
         
-(data, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate) = getData()
-(iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw) = DeepQlearning(data, 0.8, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate)
+(data, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate, onehot) = getData()
+(iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw) = DeepQlearning(data, 0.8, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate, onehot)
 test(data, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw, actions)
