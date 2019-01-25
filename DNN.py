@@ -128,7 +128,7 @@ def forward(input_, d, stoc, printDetail, last, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1N
     return (hidden0Input, hidden0Output, hidden1Input, hidden1Output, hidden2Input, hidden2Output, outputInput, outputOutput)
 
 # backpropagation (return updated weights)
-def Back(hidden0Output, hidden1Output, hidden2Output, outputOutput, iNn, h0Nn, h0Nw, h1Nn, h1Nw, h2Nn, h2Nw, oNn, oNw, d, lr):
+def Back(hidden0Output, hidden1Output, hidden2Output, outputOutput, iNn, h0Nn, h0Nw, h1Nn, h1Nw, h2Nn, h2Nw, oNn, oNw, output_, d, lr):
     # find So and Sh
     # So = (do-Oo)*Oo*(1-Oo)
     # Sh2 = Sum(So*Wh2o) * Oh2*(1-Oh2)
@@ -367,7 +367,7 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
             if last == 1: break
 
             # backpropagation
-            (h0Nw, h1Nw, h2Nw, oNw) = Back(hidden0Output, hidden1Output, hidden2Output, outputOutput, iNn, h0Nn, h0Nw, h1Nn, h1Nw, h2Nn, h2Nw, oNn, oNw, d, lr)
+            (h0Nw, h1Nw, h2Nw, oNw) = Back(hidden0Output, hidden1Output, hidden2Output, outputOutput, iNn, h0Nn, h0Nw, h1Nn, h1Nw, h2Nn, h2Nw, oNn, oNw, output_, d, lr)
 
             # calculate the sum of error
             if printDetail >= 2: print('')
