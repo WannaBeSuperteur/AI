@@ -18,7 +18,7 @@ def getData():
     h2Nn = int(x[4]) # number of neurons in hidden 2 layer
     prtinfo = int(x[5])
     prtstate = int(x[6])
-    onehot = int(x[7]) # if this value not equals 0, use one-hot DNN input
+    onehot = int(x[7]) # if this value not equal to 0, use one-hot DNN input
 
     # read data
     data = []
