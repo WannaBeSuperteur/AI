@@ -70,16 +70,16 @@ def makeActionList(stateT, state, actions, rows, cols):
         # 8 actions (directions)
         if actions == 8:
             if state >= cols and state % cols >= 1:
-                actList.append(state-cols) # UP-LEFT
+                actList.append(state-cols-1) # UP-LEFT
             else: actList.append('-')
             if state >= cols and state % cols < cols-1:
-                actList.append(state+cols) # UP-RIGHT
+                actList.append(state-cols+1) # UP-RIGHT
             else: actList.append('-')
             if state < (rows-1)*cols and state % cols >= 1:
-                actList.append(state-1) # DOWN-LEFT
+                actList.append(state+cols-1) # DOWN-LEFT
             else: actList.append('-')
             if state < (rows-1)*cols and state % cols < cols-1:
-                actList.append(state+1) # DOWN-RIGHT
+                actList.append(state+cols+1) # DOWN-RIGHT
             else: actList.append('-')
 
         return actList
