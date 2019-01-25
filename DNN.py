@@ -229,24 +229,8 @@ def Back(hidden0Output, hidden1Output, hidden2Output, outputOutput, iNn, h0Nn, h
 
     return (h0Nw, h1Nw, h2Nw, oNw)
 
-# train Neural Network
-def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata, stoc, wReturn):
-
-    iNn = len(input_[0]) # number of input neurons
-    oNn = len(output_[0]) # number of output neurons
-
-    # make input, hidden and output layer
-    # weight
-    h0Nw = [] # for hidden layer 0
-    h1Nw = [] # for hidden layer 1
-    h2Nw = [] # for hidden layer 2
-    oNw = [] # for output layer
-    # threshold
-    h0Nt = [] # for hidden layer 0
-    h1Nt = [] # for hidden layer 0
-    h2Nt = [] # for hidden layer 0
-    oNt = [] # for output layer
-    
+# initialize weight and threshold
+def initWeightAndThreshold(iNn, h0Nn, h1Nn, h2Nn, oNn, h0Nw, h1Nw, h2Nw, oNw, h0Nt, h1Nt, h2Nt, oNt):
     # set weights and thresholds
     for i in range(h0Nn):
         weights = [] # array of weight of hidden layer 0 neurons
@@ -273,6 +257,54 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
         oNw.append(weights) # hNs weights/neuron
         oNt.append(random.random()) # 1 threshold/neuron
 
+# print neuron info
+def printNeuronInfo(iNn, h0Nn, h1Nn, h2Nn, oNn, h0Nt, h0Nw, h1Nt, h1Nw, h2Nt, h2Nw, oNt, oNw):
+    print('')
+    print('<HIDDEN 0>')
+    for i in range(h0Nn):
+        print('Neuron ' + str(i) + ': thr = ' + str(round(h0Nt[i], 6)))
+        for j in range(iNn):
+            print('[ inputN ' + str(j) + ' ] weight = ' + str(round(h0Nw[i][j], 6)))
+    print('')
+    print('<HIDDEN 1>')
+    for i in range(h1Nn):
+        print('Neuron ' + str(i) + ': thr = ' + str(round(h1Nt[i], 6)))
+        for j in range(h0Nn):
+            print('[ hidden0N ' + str(j) + ' ] weight = ' + str(round(h1Nw[i][j], 6)))
+    print('')
+    print('<HIDDEN 2>')
+    for i in range(h2Nn):
+        print('Neuron ' + str(i) + ': thr = ' + str(round(h2Nt[i], 6)))
+        for j in range(h1Nn):
+            print('[ hidden1N ' + str(j) + ' ] weight = ' + str(round(h2Nw[i][j], 6)))
+    print('')
+    print('<OUTPUT>')
+    for i in range(oNn):
+        print('Neuron ' + str(i) + ': thr = ' + str(round(oNt[i], 6)))
+        for j in range(h2Nn):
+            print('[ hidden2N ' + str(j) + ' ] weight = ' + str(round(oNw[i][j], 6)))    
+
+# train Neural Network
+def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata, stoc, wReturn):
+
+    iNn = len(input_[0]) # number of input neurons
+    oNn = len(output_[0]) # number of output neurons
+
+    # make input, hidden and output layer
+    # weight
+    h0Nw = [] # for hidden layer 0
+    h1Nw = [] # for hidden layer 1
+    h2Nw = [] # for hidden layer 2
+    oNw = [] # for output layer
+    # threshold
+    h0Nt = [] # for hidden layer 0
+    h1Nt = [] # for hidden layer 0
+    h2Nt = [] # for hidden layer 0
+    oNt = [] # for output layer
+
+    # initialize weight and threshold
+    initWeightAndThreshold(iNn, h0Nn, h1Nn, h2Nn, oNn, h0Nw, h1Nw, h2Nw, oNw, h0Nt, h1Nt, h2Nt, oNt)
+
     # repeat until convergence
     last = 0 # check if last loop
     count = 0
@@ -284,30 +316,7 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
             print('')
             print('ROUND ' + str(count))
         if printDetail >= 2 or count == 1 or last == 1:
-            print('')
-            print('<HIDDEN 0>')
-            for i in range(h0Nn):
-                print('Neuron ' + str(i) + ': thr = ' + str(round(h0Nt[i], 6)))
-                for j in range(iNn):
-                    print('[ inputN ' + str(j) + ' ] weight = ' + str(round(h0Nw[i][j], 6)))
-            print('')
-            print('<HIDDEN 1>')
-            for i in range(h1Nn):
-                print('Neuron ' + str(i) + ': thr = ' + str(round(h1Nt[i], 6)))
-                for j in range(h0Nn):
-                    print('[ hidden0N ' + str(j) + ' ] weight = ' + str(round(h1Nw[i][j], 6)))
-            print('')
-            print('<HIDDEN 2>')
-            for i in range(h2Nn):
-                print('Neuron ' + str(i) + ': thr = ' + str(round(h2Nt[i], 6)))
-                for j in range(h1Nn):
-                    print('[ hidden1N ' + str(j) + ' ] weight = ' + str(round(h2Nw[i][j], 6)))
-            print('')
-            print('<OUTPUT>')
-            for i in range(oNn):
-                print('Neuron ' + str(i) + ': thr = ' + str(round(oNt[i], 6)))
-                for j in range(h2Nn):
-                    print('[ hidden2N ' + str(j) + ' ] weight = ' + str(round(oNw[i][j], 6)))
+            printNeuronInfo(iNn, h0Nn, h1Nn, h2Nn, oNn, h0Nt, h0Nw, h1Nt, h1Nw, h2Nt, h2Nw, oNt, oNw)
 
         # save current weights
         h0Nw_ = []
@@ -419,4 +428,4 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
 
 if __name__ == '__main__':
     (input_, output_, testdata) = getData()
-    Backpropagation(input_, output_, 6, 6, 6, 3.25, -2, testdata, 0, 0)
+    Backpropagation(input_, output_, 6, 6, 6, 3.25, -1, testdata, 0, 0)
