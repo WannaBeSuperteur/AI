@@ -246,14 +246,37 @@ def DeepQlearning(data, lr, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate)
             # update weights of DNN
             # forward propagation
             (hidden0Input, hidden0Output, hidden1Input, hidden1Output, hidden2Input, hidden2Output, outputInput, outputOutput) = DNN.forward([input_], 0, 0, -2, 0, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw)
+            print('DNN output   : ' + printArray([outputOutput], 6, 1))
+
             # print error : Sum(outputOutput[i] - output_[i])^2 - 'i' is index of each action
             error = 0
             for i in range(oNn):
                 error += (outputOutput[i] - output_[i]) * (outputOutput[i] - output_[i])
             print('sum of error : ' + str(round(error, 6)))
             print('')
+            
             # backpropagation
-            (h0Nw, h1Nw, h2Nw, oNw) = DNN.Back(hidden0Output, hidden1Output, hidden2Output, outputOutput, iNn, h0Nn, h0Nw, h1Nn, h1Nw, h2Nn, h2Nw, oNn, oNw, [input_], [output_], 0, lr)
+            (temp1, temp2, temp3, temp4) = DNN.Back(hidden0Output, hidden1Output, hidden2Output, outputOutput, iNn, h0Nn, h0Nw, h1Nn, h1Nw, h2Nn, h2Nw, oNn, oNw, [input_], [output_], 0, lr)
+            h0Nw = temp1
+            h1Nw = temp2
+            h2Nw = temp3
+            oNw = temp4
+
+            # print updated weight
+            if prtinfo != 0:
+                print(' **** WEIGHT UPDATE ****')
+                print('updated hidden 0 layer weight')
+                print(printArray(h0Nw, 6, 1))
+                print('')
+                print('updated hidden 1 layer weight')
+                print(printArray(h1Nw, 6, 1))
+                print('')
+                print('updated hidden 2 layer weight')
+                print(printArray(h2Nw, 6, 1))
+                print('')
+                print('updated output layer weight')
+                print(printArray(oNw, 6, 1))
+                print('')
 
             # take action a': max(a')(Q(s', a')) or random
             doRandom = 10/(times+10) # probability of searching randomly
