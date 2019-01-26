@@ -236,12 +236,12 @@ def DeepQlearning(data, lr, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate,
                 # get max reward
                 tempActList = makeActionList(tempState, actions, rows, cols)
                 maxReward = 0.0
-                for i in range(len(tempActList)):
+                for j in range(len(tempActList)):
                     # check if '-'
-                    if tempActList[i] == '-' or stateT[tempActList[i]][1] == '-': continue
+                    if tempActList[j] == '-' or stateT[tempActList[j]][1] == '-': continue
                     # update max reward
-                    if stateT[tempActList[i]][1] > maxReward:
-                        maxReward = stateT[tempActList[i]][1]
+                    if stateT[tempActList[j]][1] > maxReward:
+                        maxReward = stateT[tempActList[j]][1]
                 value += lr * maxReward # value = (immed) + lr * (maxReward)
                 
                 if maxVal < value: maxVal = value
