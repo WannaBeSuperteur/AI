@@ -46,8 +46,13 @@ def getValue(board_, scoreFunc):
     p2_score = scoreFunc(board_, 'X')
     return p1_score-p2_score
 
+# check condition
+def checkCondi(board, coor0, coor1):
+    if board[coor0][coor1] == '-': return 1
+    else: return 0
+
 # span the tree with MAXDEPTH
-def spanTree(board_, turn, bSize, scoreFunc, valueFunc):
+def spanTree(board_, turn, bSize, scoreFunc, valueFunc, condiFunc):
     tree = [] # Game Search Tree (0=board, 1=value, 2=id, 3=parent, 4=depth)
     tree.append([board_, getValue(board_, scoreFunc), 0, -1, 0]) # append initial board
     new_id = 1 # ID of node of tree
@@ -76,7 +81,7 @@ def spanTree(board_, turn, bSize, scoreFunc, valueFunc):
             # find legal move for player
             for j in range(bSize):
                 for k in range(bSize):
-                    if board1[j][k] == '-':
+                    if condiFunc(board1, j, k) != 0:
 
                         # make temp board
                         board2 = [['-']*bSize for ii in range(bSize)]
@@ -173,10 +178,10 @@ if __name__ == '__main__':
     while(1):
         # turn check
         if turns % 2 == 0:
-            tree = spanTree(board, 'O', bSize, getScore, getValue)
+            tree = spanTree(board, 'O', bSize, getScore, getValue, checkCondi)
             board = findAnswer(tree, 'O')
         else:
-            tree = spanTree(board, 'X', bSize, getScore, getValue)
+            tree = spanTree(board, 'X', bSize, getScore, getValue, checkCondi)
             board = findAnswer(tree, 'X')
 
         # print
