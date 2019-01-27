@@ -38,18 +38,18 @@ def getScore(board_, OorX):
     return result
 
 # get score of player 1
-def getValue(board_):
+def getValue(board_, scoreFunc):
     score_of_p1 = 0 # score of player 1 (n(O)-n(X))
     # O : Line(3) + 10*Line(2) + 100*Line(1)
-    p1_score = getScore(board_, 'O')
+    p1_score = scoreFunc(board_, 'O')
     # X : Line(3) + 10*Line(2) + 100*Line(1)
-    p2_score = getScore(board_, 'X')
+    p2_score = scoreFunc(board_, 'X')
     return p1_score-p2_score
 
 # span the tree with MAXDEPTH
 def spanTree(board_, turn, bSize, scoreFunc, valueFunc):
     tree = [] # Game Search Tree (0=board, 1=value, 2=id, 3=parent, 4=depth)
-    tree.append([board_, getValue(board_), 0, -1, 0]) # append initial board
+    tree.append([board_, getValue(board_, scoreFunc), 0, -1, 0]) # append initial board
     new_id = 1 # ID of node of tree
     start_id = 0
     end_id = 1
@@ -86,7 +86,7 @@ def spanTree(board_, turn, bSize, scoreFunc, valueFunc):
                         board2[j][k] = str(turn)
 
                         # calculate score value
-                        scoreVal = valueFunc(board2)
+                        scoreVal = valueFunc(board2, scoreFunc)
 
                         # append to Game Search Tree
                         tree.append([board2, scoreVal, new_id, id1, i+1]) # append new board
