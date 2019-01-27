@@ -47,7 +47,7 @@ def getValue(board_, scoreFunc):
     return p1_score-p2_score
 
 # check condition
-def checkCondi(board, coor0, coor1):
+def checkCondi(board, coor0, coor1, turn):
     if board[coor0][coor1] == '-': return 1
     else: return 0
 
@@ -85,7 +85,7 @@ def spanTree(board_, turn, bSize, scoreFunc, valueFunc, condiFunc, modiFunc):
             # find legal move for player
             for j in range(bSize):
                 for k in range(bSize):
-                    if condiFunc(board1, j, k) != 0:
+                    if condiFunc(board1, j, k, turn) != 0:
 
                         # make temp board
                         board2 = [['-']*bSize for ii in range(bSize)]
