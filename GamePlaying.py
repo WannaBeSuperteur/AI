@@ -92,7 +92,7 @@ def spanTree(board_, turn, bSize, scoreFunc, valueFunc, condiFunc, modiFunc):
                         for l in range(bSize):
                             for m in range(bSize):
                                 board2[l][m] = board1[l][m]
-                        modifyBoard(board2, j, k, turn)
+                        modiFunc(board2, j, k, turn)
 
                         # calculate score value
                         scoreVal = valueFunc(board2, scoreFunc)
