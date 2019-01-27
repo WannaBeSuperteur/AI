@@ -45,7 +45,7 @@ def getValue(board_):
     return p1_score-p2_score
 
 # span the tree with MAXDEPTH
-def spanTree(board_, turn):
+def spanTree(board_, turn, bSize):
     tree = [] # Game Search Tree (0=board, 1=value, 2=id, 3=parent, 4=depth)
     tree.append([board_, getValue(board_), 0, -1, 0]) # append initial board
     new_id = 1 # ID of node of tree
@@ -72,14 +72,14 @@ def spanTree(board_, turn):
             if getScore(board1, 'X') >= 100: continue
             
             # find legal move for player
-            for j in range(3):
-                for k in range(3):
+            for j in range(bSize):
+                for k in range(bSize):
                     if board1[j][k] == '-':
 
                         # make temp board
-                        board2 = [['-']*3 for ii in range(3)]
-                        for l in range(3):
-                            for m in range(3):
+                        board2 = [['-']*bSize for ii in range(bSize)]
+                        for l in range(bSize):
+                            for m in range(bSize):
                                 board2[l][m] = board1[l][m]
                         board2[j][k] = str(turn)
 
@@ -153,13 +153,14 @@ def findAnswer(tree, turn):
     return board
 
 # 0. make board
-board = [['-']*3 for i in range(3)]
-for i in range(3):
-    for j in range(3):
+bSize = 3
+board = [['-']*bSize for i in range(bSize)]
+for i in range(bSize):
+    for j in range(bSize):
         board[i][j] = '-'
 
 # 1. print default board
-for i in range(3):
+for i in range(bSize):
     print(board[i])
 
 # 2. playing game
@@ -167,16 +168,16 @@ turns = 0
 while(1):
     # turn check
     if turns % 2 == 0:
-        tree = spanTree(board, 'O')
+        tree = spanTree(board, 'O', bSize)
         board = findAnswer(tree, 'O')
     else:
-        tree = spanTree(board, 'X')
+        tree = spanTree(board, 'X', bSize)
         board = findAnswer(tree, 'X')
 
     # print
     print('')
     print('board at turn ' + str(turns+1))
-    for i in range(3):
+    for i in range(bSize):
         print(board[i])
 
     # victory check
@@ -187,8 +188,8 @@ while(1):
         print('X victory')
         break
     blanks = 0
-    for i in range(3):
-        for j in range(3):
+    for i in range(bSize):
+        for j in range(bSize):
             if board[i][j] == '-': blanks = blanks + 1
     if blanks == 0:
         print('draw')
