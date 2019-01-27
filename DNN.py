@@ -387,7 +387,7 @@ def Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, lr, printDetail, testdata
                 print('error for input ' + str(i) + ': ' + str(round(error[i], 6)))
         if printDetail >= -1 or count % 100 == 0:
             print('sum of error: ' + str(round(errorSum, 6)))
-        if errorSum / (len(input_) * len(output_)) < 0.001 or (count >= 20000 and printDetail >= -1) or count >= 1000000:
+        if errorSum / (len(input_) * len(output_[0])) < 0.001 or (count >= 20000 and printDetail >= -1) or count >= 1000000:
             last = 1
 
         # print change of weight
