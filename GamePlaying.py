@@ -1,3 +1,5 @@
+import random
+
 # TIC-TAC-TOE
 MAXDEP = 4
 
@@ -120,6 +122,8 @@ def findAnswer(tree, turn):
         last_parent = -1
         
         for i in range(len(tree0)):
+            lenT = len(tree0)
+            randElement = random.randint(0, lenT)
 
             # if different(new parent), initialize min/maxval
             if last_parent != tree0[i][3]:
@@ -129,7 +133,7 @@ def findAnswer(tree, turn):
             # UP: MIN
             if (d % 2 == 0 and turn == 'O') or (d % 2 == 1 and turn == 'X'):
                 val = tree0[i][1] # value of this node
-                if val < minval:
+                if val < minval or (val <= minval and i < randElement):
                     minval = val
                     if d == 1: final_id = tree0[i][2] # update final decision
                 tree_copy[tree0[i][3]][1] = minval # update minval
@@ -137,7 +141,7 @@ def findAnswer(tree, turn):
             # UP: MAX
             else:
                 val = tree0[i][1] # value of this node
-                if val > maxval:
+                if val > maxval or (val >= maxval and i < randElement):
                     maxval = val
                     if d == 1: final_id = tree0[i][2] # update final decision
                 tree_copy[tree0[i][3]][1] = maxval # update maxval
@@ -152,47 +156,48 @@ def findAnswer(tree, turn):
     board = tree_copy[final_id][0]
     return board
 
-# 0. make board
-bSize = 3
-board = [['-']*bSize for i in range(bSize)]
-for i in range(bSize):
-    for j in range(bSize):
-        board[i][j] = '-'
+if __name__ == '__main__':
+    # 0. make board
+    bSize = 3
+    board = [['-']*bSize for i in range(bSize)]
+    for i in range(bSize):
+        for j in range(bSize):
+            board[i][j] = '-'
 
-# 1. print default board
-for i in range(bSize):
-    print(board[i])
-
-# 2. playing game
-turns = 0
-while(1):
-    # turn check
-    if turns % 2 == 0:
-        tree = spanTree(board, 'O', bSize)
-        board = findAnswer(tree, 'O')
-    else:
-        tree = spanTree(board, 'X', bSize)
-        board = findAnswer(tree, 'X')
-
-    # print
-    print('')
-    print('board at turn ' + str(turns+1))
+    # 1. print default board
     for i in range(bSize):
         print(board[i])
 
-    # victory check
-    if getScore(board, 'O') >= 100:
-        print('O victory')
-        break
-    if getScore(board, 'X') >= 100:
-        print('X victory')
-        break
-    blanks = 0
-    for i in range(bSize):
-        for j in range(bSize):
-            if board[i][j] == '-': blanks = blanks + 1
-    if blanks == 0:
-        print('draw')
-        break
+    # 2. playing game
+    turns = 0
+    while(1):
+        # turn check
+        if turns % 2 == 0:
+            tree = spanTree(board, 'O', bSize)
+            board = findAnswer(tree, 'O')
+        else:
+            tree = spanTree(board, 'X', bSize)
+            board = findAnswer(tree, 'X')
 
-    turns += 1
+        # print
+        print('')
+        print('board at turn ' + str(turns+1))
+        for i in range(bSize):
+            print(board[i])
+
+        # victory check
+        if getScore(board, 'O') >= 100:
+            print('O victory')
+            break
+        if getScore(board, 'X') >= 100:
+            print('X victory')
+            break
+        blanks = 0
+        for i in range(bSize):
+            for j in range(bSize):
+                if board[i][j] == '-': blanks = blanks + 1
+        if blanks == 0:
+            print('draw')
+            break
+
+        turns += 1
