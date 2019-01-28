@@ -4,6 +4,7 @@ imp.load_source('DNN', os.path.join(os.path.dirname(__file__), "../DNN.py"))
 import GamePlaying
 import DNN
 import sys
+import random
 
 # othello
 MAXDEP = 4
@@ -41,7 +42,7 @@ def getScoUsingDNN(board_, OorX):
 
     for i in range(len(board_)):
         for j in range(len(board_[0])):
-            if board_[i][j] == OorX: result += DNNarray[i][j]
+            if board_[i][j] == OorX: result += DNNarray[i][j] * (random.random()-0.5)/(_*10+10)
         
     return result
 
@@ -118,7 +119,7 @@ def modifyBoard(board, coor0, coor1, turn):
             elif board[a][b] == '-': break
 
 # play game
-def playGame(games, bSize, getSco_, getVal_, checkCondi_, modifyBoard_, getCount_):
+def playGame(games, bSize, getSco_, getVal_, checkCondi_, modifyBoard_, getCount_, _):
     for game in range(games):
         print(' ******** GAME ' + str(game) + ' ********')
         print('')
@@ -144,7 +145,15 @@ def playGame(games, bSize, getSco_, getVal_, checkCondi_, modifyBoard_, getCount
         for i in range(bSize):
             print(board[i])
 
-        # 1-3. playing game
+        # 1-3, add noise to DNNarray
+        tempDNNarray = [[0]*int(bSize) for i in range(int(bSize))]
+        if _ >= 0:
+            for i in range(bSize):
+                for j in range(bSize):
+                    tempDNNarray[i][j] = DNNarray[i][j]
+                    DNNarray[i][j] += (random.random()-0.5) / (5.0 + _*5.0)
+
+        # 1-4. playing game
         turns = 0
         drawturns = 0
         while(1):
@@ -230,7 +239,13 @@ def playGame(games, bSize, getSco_, getVal_, checkCondi_, modifyBoard_, getCount
 
             turns += 1
 
-        # 1-4. make input and output for this game
+        # 1-4. restore DNNarray
+        if _ >= 0:
+            for i in range(bSize):
+                for j in range(bSize):
+                    DNNarray[i][j] = tempDNNarray[i][j]
+
+        # 1-5. make input and output for this game
         bHalf = int(bSize/2)
         
         # make input
@@ -252,7 +267,7 @@ def playGame(games, bSize, getSco_, getVal_, checkCondi_, modifyBoard_, getCount
         sigmOrate = DNN.sigmoid(Orate, 0)
         output_.append([sigmOrate])
 
-        # 1-5. print result
+        # 1-6. print result
         print('**** Oput ****')
         for i in range(len(Oput)): print(printVec(Oput[i], 6))
         print('**** Xput ****')
@@ -283,7 +298,7 @@ input_ = [] # DNN input
 output_ = [] # DNN output
 
 # 1. repeat playing game
-playGame(games, bSize, getSco, getVal, checkCondi, modifyBoard, getCount)
+playGame(games, bSize, getSco, getVal, checkCondi, modifyBoard, getCount, -1)
 
 # 2. print result
 for i in range(games):
@@ -333,7 +348,7 @@ for _ in range(stages):
     # 5. play game using result of DNN
     input_ = [] # DNN input
     output_ = [] # DNN output
-    playGame(aftergames, bSize, getScoUsingDNN, getVal, checkCondi, modifyBoard, getCount)
+    playGame(aftergames, bSize, getScoUsingDNN, getVal, checkCondi, modifyBoard, getCount, _)
 
     for i in range(aftergames):
         print('input: ' + printVec(input_[i], 4) + ', output: ' + printVec(output_[i], 6))
