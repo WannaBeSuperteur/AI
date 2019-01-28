@@ -69,7 +69,7 @@ def isActionPossible(action, rows, cols, immedT):
     coor = action[0] # coordinates of action
     a = coor[0] # coordinate 1
     b = coor[1] # coordinate 2
-    immedTIndex = a*4+b # index of next state (immedT)
+    immedTIndex = a*cols+b # index of next state (immedT)
             
     if a < 0 or a >= rows or b < 0 or b >= cols or immedT[immedTIndex][1] == '-': # check if '-'
         return 0 # FALSE
@@ -352,7 +352,7 @@ def DeepQlearning(data, lr, actions, iters, h0Nn, h1Nn, h2Nn, prtinfo, prtstate,
                     coor = actList[nextNum][0] # coordinates of action
                     a = coor[0] # coordinate 1
                     b = coor[1] # coordinate 2
-                    immedTIndex = a*4+b # index of next state (immedT)
+                    immedTIndex = a*cols+b # index of next state (immedT)
 
                     # decide nextNum (index of next action in actList)
                     if a >= 0 and a < rows and b >= 0 and b < cols and immedT[immedTIndex][1] != '-': break
