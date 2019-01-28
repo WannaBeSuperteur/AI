@@ -298,7 +298,7 @@ print('')
 
 # 4. make DNN array (repeat)
 for _ in range(stages):
-    print(' ******** LEARNING: STAGE ' + str(stages) + ' ********')
+    print(' ******** LEARNING: STAGE ' + str(_) + ' ********')
     print('')
     
     DNNarray = [[0]*bSize for i in range(bSize)]
