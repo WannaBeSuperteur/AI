@@ -43,7 +43,7 @@ def forward(input_, d, stoc, printDetail, last, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1N
         hidden0Input.append(hX)
 
     if printDetail >= 2 or last == 1:
-        his = 'Hidden Layer 1 Input: [ '
+        his = 'Hidden Layer 0 Input: [ '
         for i in range(h0Nn): his += str(round(hidden0Input[i], 6)) + '  '
         print(his + ']')
 
