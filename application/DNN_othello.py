@@ -277,82 +277,83 @@ def playGame(games, bSize, getSco_, getVal_, checkCondi_, modifyBoard_, getCount
         print('output: ' + printVec([sigmOrate], 6))
         print('')
 
-# 0. read file
-f = open('DNN_othello.txt', 'r')
-read = f.readlines()
-bSize = int(read[0]) # size of board
+if __name__ == '__main__':
+    # 0. read file
+    f = open('DNN_othello.txt', 'r')
+    read = f.readlines()
+    bSize = int(read[0]) # size of board
 
-gameN = read[1].split('\n')[0].split(' ')
-games = int(gameN[0]) # number of games before making DNN
-aftergames = int(gameN[1]) # number of games after making DNN (for each stage)
-stages = int(gameN[2]) # number of stages (repeat)
+    gameN = read[1].split('\n')[0].split(' ')
+    games = int(gameN[0]) # number of games before making DNN
+    aftergames = int(gameN[1]) # number of games after making DNN (for each stage)
+    stages = int(gameN[2]) # number of stages (repeat)
 
-neurons = read[2].split('\n')[0].split(' ') # number of neurons in each hidden layer
-f.close()
+    neurons = read[2].split('\n')[0].split(' ') # number of neurons in each hidden layer
+    f.close()
 
-if bSize % 2 != 0:
-    print('board size must be even number.')
-    sys.exit(1)
+    if bSize % 2 != 0:
+        print('board size must be even number.')
+        sys.exit(1)
 
-input_ = [] # DNN input
-output_ = [] # DNN output
-
-# 1. repeat playing game
-playGame(games, bSize, getSco, getVal, checkCondi, modifyBoard, getCount, -1)
-
-# 2. print result
-for i in range(games):
-    print('input: ' + printVec(input_[i], 4) + ', output: ' + printVec(output_[i], 6))
-
-# 3. DNN learning
-h0Nn = int(neurons[0])
-h1Nn = int(neurons[1])
-h2Nn = int(neurons[2])
-(iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw) = DNN.Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, 3.25, -2, input_[0], 0, 0)
-print('')
-
-# 4. make DNN array (repeat)
-for _ in range(stages):
-    print(' ******** LEARNING: STAGE ' + str(_) + ' ********')
-    print('')
-    
-    DNNarray = [[0]*bSize for i in range(bSize)]
-    for i in range(bSize):
-        for j in range(bSize):
-            coor0 = i
-            coor1 = j
-
-            # to match coordinate with DNN input
-            if coor0 >= int(bSize/2): coor0 = (bSize-1)-coor0
-            if coor1 >= int(bSize/2): coor1 = (bSize-1)-coor1
-            if coor0 < coor1: (coor0, coor1) = (coor1, coor0)
-
-            # make DNN input: {index->1.0, not index->0.5}
-            inputIndex = coor0*(coor0+1)/2 + coor1
-            input_ = []
-            for k in range(iNn):
-                if k == inputIndex: input_.append(1.0)
-                else: input_.append(0.5)
-            print('(' + str(i) + ',' + str(j) + ') -> DNN input = ' + printVec(input_, 4))
-
-            # get output
-            (hidden0Input, hidden0Output, hidden1Input, hidden1Output, hidden2Input, hidden2Output, outputInput, outputOutput) = DNN.forward([input_], 0, 0, -2, 0, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw)
-            DNNarray[i][j] = outputOutput[0] - 0.5
-    print('')
-
-    print('<DNN value array>')
-    for i in range(bSize): # print
-        print(printVec(DNNarray[i], 4))
-    print('')
-
-    # 5. play game using result of DNN
     input_ = [] # DNN input
     output_ = [] # DNN output
-    playGame(aftergames, bSize, getScoUsingDNN, getVal, checkCondi, modifyBoard, getCount, _)
 
-    for i in range(aftergames):
+    # 1. repeat playing game
+    playGame(games, bSize, getSco, getVal, checkCondi, modifyBoard, getCount, -1)
+
+    # 2. print result
+    for i in range(games):
         print('input: ' + printVec(input_[i], 4) + ', output: ' + printVec(output_[i], 6))
 
-    # 6. learning from this stage
+    # 3. DNN learning
+    h0Nn = int(neurons[0])
+    h1Nn = int(neurons[1])
+    h2Nn = int(neurons[2])
     (iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw) = DNN.Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, 3.25, -2, input_[0], 0, 0)
     print('')
+
+    # 4. make DNN array (repeat)
+    for _ in range(stages):
+        print(' ******** LEARNING: STAGE ' + str(_) + ' ********')
+        print('')
+        
+        DNNarray = [[0]*bSize for i in range(bSize)]
+        for i in range(bSize):
+            for j in range(bSize):
+                coor0 = i
+                coor1 = j
+
+                # to match coordinate with DNN input
+                if coor0 >= int(bSize/2): coor0 = (bSize-1)-coor0
+                if coor1 >= int(bSize/2): coor1 = (bSize-1)-coor1
+                if coor0 < coor1: (coor0, coor1) = (coor1, coor0)
+
+                # make DNN input: {index->1.0, not index->0.5}
+                inputIndex = coor0*(coor0+1)/2 + coor1
+                input_ = []
+                for k in range(iNn):
+                    if k == inputIndex: input_.append(1.0)
+                    else: input_.append(0.5)
+                print('(' + str(i) + ',' + str(j) + ') -> DNN input = ' + printVec(input_, 4))
+
+                # get output
+                (hidden0Input, hidden0Output, hidden1Input, hidden1Output, hidden2Input, hidden2Output, outputInput, outputOutput) = DNN.forward([input_], 0, 0, -2, 0, iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw)
+                DNNarray[i][j] = outputOutput[0] - 0.5
+        print('')
+
+        print('<DNN value array>')
+        for i in range(bSize): # print
+            print(printVec(DNNarray[i], 4))
+        print('')
+
+        # 5. play game using result of DNN
+        input_ = [] # DNN input
+        output_ = [] # DNN output
+        playGame(aftergames, bSize, getScoUsingDNN, getVal, checkCondi, modifyBoard, getCount, _)
+
+        for i in range(aftergames):
+            print('input: ' + printVec(input_[i], 4) + ', output: ' + printVec(output_[i], 6))
+
+        # 6. learning from this stage
+        (iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw) = DNN.Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, 3.25, -2, input_[0], 0, 0)
+        print('')
