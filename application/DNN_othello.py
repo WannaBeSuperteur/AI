@@ -118,6 +118,20 @@ def modifyBoard(board, coor0, coor1, turn):
                 break
             elif board[a][b] == '-': break
 
+# check if victory (end of game)
+def victory(board, turn, scoreFunc):
+    size = len(board)
+    
+    # count blanks
+    blanks = 0
+    for i in range(size):
+        for j in range(size):
+            if board[i][j] == '-': blanks += 1
+
+    # victory check
+    if blanks == 0 or getCount(board, 'O') == 0 or getCount(board, 'X') == 0: return 1
+    else: return 0
+
 # play game
 def playGame(games, bSize, getSco_, getVal_, checkCondi_, modifyBoard_, getCount_, _):
     for game in range(games):
@@ -165,7 +179,7 @@ def playGame(games, bSize, getSco_, getVal_, checkCondi_, modifyBoard_, getCount
             
             # turn check
             if turns % 2 == 0: # turn of O
-                tree = GamePlaying.spanTree(board, 'O', bSize, getSco_, getVal_, checkCondi_, modifyBoard_)
+                tree = GamePlaying.spanTree(board, 'O', bSize, getSco_, getVal_, checkCondi_, modifyBoard_, victory)
                 if len(tree) == 1: # no next move
                     print('no next move for player O')
                     drawturns += 1
@@ -174,7 +188,7 @@ def playGame(games, bSize, getSco_, getVal_, checkCondi_, modifyBoard_, getCount
                 else: drawturns = 0
                 board = GamePlaying.findAnswer(tree, 'O')
             else: # turn of X
-                tree = GamePlaying.spanTree(board, 'X', bSize, getSco_, getVal_, checkCondi_, modifyBoard_)
+                tree = GamePlaying.spanTree(board, 'X', bSize, getSco_, getVal_, checkCondi_, modifyBoard_, victory)
                 if len(tree) == 1: # no next move
                     print('no next move for player X')
                     drawturns += 1
