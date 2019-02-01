@@ -55,10 +55,15 @@ def checkCondi(board, coor0, coor1, turn):
 def modifyBoard(board, coor0, coor1, turn):
     board[coor0][coor1] = str(turn)
 
+# check victory (end of game)
+def victory(board, turn, scoreFunc):
+    if scoreFunc(board, turn) >= 100: return 1
+    else: return 0
+
 # span the tree with MAXDEPTH
-def spanTree(board_, turn, bSize, scoreFunc, valueFunc, condiFunc, modiFunc):
+def spanTree(board_, turn, bSize, scoreFunc, valueFunc, condiFunc, modiFunc, vicFunc):
     tree = [] # Game Search Tree (0=board, 1=value, 2=id, 3=parent, 4=depth)
-    tree.append([board_, getValue(board_, scoreFunc), 0, -1, 0]) # append initial board
+    tree.append([board_, valueFunc(board_, scoreFunc), 0, -1, 0]) # append initial board
     new_id = 1 # ID of node of tree
     start_id = 0
     end_id = 1
@@ -79,8 +84,8 @@ def spanTree(board_, turn, bSize, scoreFunc, valueFunc, condiFunc, modiFunc):
             id1 = temptree[ii][2]
 
             # if victory of O or X -> continue
-            if scoreFunc(board1, 'O') >= 100: continue
-            if scoreFunc(board1, 'X') >= 100: continue
+            if vicFunc(board1, 'O', scoreFunc) == 1: continue
+            if vicFunc(board1, 'X', scoreFunc) == 1: continue
             
             # find legal move for player
             for j in range(bSize):
@@ -182,10 +187,10 @@ if __name__ == '__main__':
     while(1):
         # turn check
         if turns % 2 == 0:
-            tree = spanTree(board, 'O', bSize, getScore, getValue, checkCondi, modifyBoard)
+            tree = spanTree(board, 'O', bSize, getScore, getValue, checkCondi, modifyBoard, victory)
             board = findAnswer(tree, 'O')
         else:
-            tree = spanTree(board, 'X', bSize, getScore, getValue, checkCondi, modifyBoard)
+            tree = spanTree(board, 'X', bSize, getScore, getValue, checkCondi, modifyBoard, victory)
             board = findAnswer(tree, 'X')
 
         # print
