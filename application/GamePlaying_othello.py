@@ -97,6 +97,20 @@ def modifyBoard(board, coor0, coor1, turn):
                 break
             elif board[a][b] == '-': break
 
+# check if victory (end of game)
+def victory(board, turn, scoreFunc):
+    size = len(board)
+    
+    # count blanks
+    blanks = 0
+    for i in range(size):
+        for j in range(size):
+            if board[i][j] == '-': blanks += 1
+
+    # victory check
+    if blanks == 0 or getCount(board, 'O') == 0 or getCount(board, 'X') == 0: return 1
+    else: return 0
+
 # 0. read file
 f = open('GamePlaying_othello.txt', 'r')
 read = f.readlines()
@@ -125,7 +139,7 @@ while(1):
     
     # turn check
     if turns % 2 == 0: # turn of O
-        tree = GamePlaying.spanTree(board, 'O', bSize, getSco, getVal, checkCondi, modifyBoard)
+        tree = GamePlaying.spanTree(board, 'O', bSize, getSco, getVal, checkCondi, modifyBoard, victory)
         if len(tree) == 1: # no next move
             print('no next move for player O')
             drawturns += 1
@@ -134,7 +148,7 @@ while(1):
         else: drawturns = 0
         board = GamePlaying.findAnswer(tree, 'O')
     else: # turn of X
-        tree = GamePlaying.spanTree(board, 'X', bSize, getSco, getVal, checkCondi, modifyBoard)
+        tree = GamePlaying.spanTree(board, 'X', bSize, getSco, getVal, checkCondi, modifyBoard, victory)
         if len(tree) == 1: # no next move
             print('no next move for player X')
             drawturns += 1
@@ -146,6 +160,7 @@ while(1):
     # print
     print('')
     print('board at turn ' + str(turns+1))
+    print('O ' + str(getCount(board, 'O')) + ' : X ' + str(getCount(board, 'X')))
     for i in range(bSize):
         print(board[i])
 
