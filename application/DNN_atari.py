@@ -210,19 +210,25 @@ def playGame(games, board, width, height, forwarding, lenInput, prt):
             # make initial agent input array
             agentInput = [] # input made by agent (algorithm)
             for i in range(lenInput):
-                x = random.randint(0, 1)
-                if x == 0: agentInput.append(-1)
-                else: agentInput.append(1)
+                x = random.randint(0, 2)
+                agentInput.append(x)
 
             # find input that returns maximum output using Hill-Climbing Search
             while 1:
                 # make list of neighbor input (only one element is different)
                 neighborInput = []
                 for i in range(lenInput):
-                    neighborInput.append(arrayCopy(agentInput))
+                    for j in range(2): neighborInput.append(arrayCopy(agentInput))
+
+                    agentValue = agentInput[i] # value at index i of agent input array
+                    temp = [] # {0, 1, 2} - agentValue
+                    if agentValue == 0: temp = [1, 2]
+                    elif agentValue == 1: temp = [0, 2]
+                    elif agentValue == 2: temp = [0, 1]
                     
                     # change value at index i to derive a neighbor input
-                    neighborInput[i][i] *= -1
+                    neighborInput[i*2][i] = temp[0]
+                    neighborInput[i*2+1][i] = temp[1]
 
                 # get DNN output using agent input
                 inp_ = agentInput + environment # original agent input
@@ -255,9 +261,8 @@ def playGame(games, board, width, height, forwarding, lenInput, prt):
         else:
             agentInput = [] # input made by agent (algorithm)
             for i in range(lenInput):
-                x = random.randint(0, 1)
-                if x == 0: agentInput.append(-1)
-                else: agentInput.append(1)
+                x = random.randint(0, 2)
+                agentInput.append(x)
 
             inp = arrayCopy(agentInput)
 
@@ -266,20 +271,16 @@ def playGame(games, board, width, height, forwarding, lenInput, prt):
         for i in range(lenInput):
 
             # take action
-            x = random.randint(0, 1)
-            moveBar = -2
+            moveBar = 0
             # GO RIGHT
-            if inp[i] == 1:
+            if inp[i] == 2:
                 if barEnd < width: moveBar = 1
-                else: # RANDOM
-                    if x == 0: moveBar = 0
-                    else: moveBar = -1
+                else: moveBar = 0
             # GO LEFT
-            elif inp[i] == -1:
+            elif inp[i] == 0:
                 if barStart > 0: moveBar = -1
-                else: # RANDOM
-                    if x == 0: moveBar = 0
-                    else: moveBar = 1
+                else: moveBar = 0
+            # if input value is 1, do nothing
             # do action
             (result, ballIndex, ballVector) = takeAction(board, moveBar, result, barStart, barEnd, ballIndex, ballVector)
             if ballIndex == 'F':
