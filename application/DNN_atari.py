@@ -317,68 +317,69 @@ def playGame(games, board, width, height, forwarding, lenInput, prt):
     for game in range(games):
         output_.append([DNN.sigmoid((result_[game]-avgResult)/sdResult, 0)])
 
-# 0. read file
-f = open('DNN_atari.txt', 'r')
-read = f.readlines()
+if __name__ == '__main__':
+    # 0. read file
+    f = open('DNN_atari.txt', 'r')
+    read = f.readlines()
 
-size = read[0].split('\n')[0].split(' ')
-width = int(size[0]) # width of board
-height = int(size[1]) # height of board
+    size = read[0].split('\n')[0].split(' ')
+    width = int(size[0]) # width of board
+    height = int(size[1]) # height of board
 
-gameN = read[1].split('\n')[0].split(' ')
-games = int(gameN[0]) # number of games before making DNN
-aftergames = int(gameN[1]) # number of games after making DNN (for each stage)
-stages = int(gameN[2]) # number of stages (repeat)
+    gameN = read[1].split('\n')[0].split(' ')
+    games = int(gameN[0]) # number of games before making DNN
+    aftergames = int(gameN[1]) # number of games after making DNN (for each stage)
+    stages = int(gameN[2]) # number of stages (repeat)
 
-neurons = read[2].split('\n')[0].split(' ') # number of neurons in each hidden layer
-h0Nn = int(neurons[0]) # number of neurons in hidden layer 0
-h1Nn = int(neurons[1]) # number of neurons in hidden layer 1
-h2Nn = int(neurons[2]) # number of neurons in hidden layer 2
+    neurons = read[2].split('\n')[0].split(' ') # number of neurons in each hidden layer
+    h0Nn = int(neurons[0]) # number of neurons in hidden layer 0
+    h1Nn = int(neurons[1]) # number of neurons in hidden layer 1
+    h2Nn = int(neurons[2]) # number of neurons in hidden layer 2
 
-lenInput = int(read[3]) # length of DNN input
+    lenInput = int(read[3]) # length of DNN input
 
-prt = int(read[4]) # print?
+    prt = int(read[4]) # print?
 
-board = [] # game board
-for i in range(height):
-    board.append(read[i+5].split('\n')[0].split(' '))
+    board = [] # game board
+    for i in range(height):
+        board.append(read[i+5].split('\n')[0].split(' '))
 
-print(' **** INITIAL GAME BOARD **** ')
-for i in range(height):
-    print(printStr(board[i]))
-print('')
-
-f.close()
-
-input_ = [] # DNN input
-output_ = [] # DNN output
-
-# 1. repeat playing game
-playGame(games, board, width, height, [], lenInput, prt)
-print('')
-
-# 2. print result
-if prt > 0 or games * lenInput <= 2000:
-    for i in range(games):
-        print('input: ' + printVec(input_[i], 4, 20) + ', output: ' + printVec(output_[i], 6, 2147483647))
-
-# 3. DNN learning
-(iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw) = DNN.Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, 3.25, -2, input_[0], 0, 0)
-print('')
-
-# 4. keep playing game (for n stages)
-for _ in range(stages):
-    print(' ******** LEARNING: STAGE ' + str(_) + ' ********')
+    print(' **** INITIAL GAME BOARD **** ')
+    for i in range(height):
+        print(printStr(board[i]))
     print('')
 
-    # 5. play game using result of DNN
+    f.close()
+
     input_ = [] # DNN input
     output_ = [] # DNN output
-    playGame(aftergames, board, width, height, [h0Nt, h0Nw, h1Nt, h1Nw, h2Nt, h2Nw, oNt, oNw, iNn, h0Nn, h1Nn, h2Nn, oNn], lenInput, prt)
 
-    for i in range(aftergames):
-        print('input: ' + printVec(input_[i], 4, 20) + ', output: ' + printVec(output_[i], 6, 2147483647))
+    # 1. repeat playing game
+    playGame(games, board, width, height, [], lenInput, prt)
+    print('')
 
-    # 6. learning from this stage
+    # 2. print result
+    if prt > 0 or games * lenInput <= 2000:
+        for i in range(games):
+            print('input: ' + printVec(input_[i], 4, 20) + ', output: ' + printVec(output_[i], 6, 2147483647))
+
+    # 3. DNN learning
     (iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw) = DNN.Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, 3.25, -2, input_[0], 0, 0)
     print('')
+
+    # 4. keep playing game (for n stages)
+    for _ in range(stages):
+        print(' ******** LEARNING: STAGE ' + str(_) + ' ********')
+        print('')
+
+        # 5. play game using result of DNN
+        input_ = [] # DNN input
+        output_ = [] # DNN output
+        playGame(aftergames, board, width, height, [h0Nt, h0Nw, h1Nt, h1Nw, h2Nt, h2Nw, oNt, oNw, iNn, h0Nn, h1Nn, h2Nn, oNn], lenInput, prt)
+
+        for i in range(aftergames):
+            print('input: ' + printVec(input_[i], 4, 20) + ', output: ' + printVec(output_[i], 6, 2147483647))
+
+        # 6. learning from this stage
+        (iNn, h0Nn, h0Nt, h0Nw, h1Nn, h1Nt, h1Nw, h2Nn, h2Nt, h2Nw, oNn, oNt, oNw) = DNN.Backpropagation(input_, output_, h0Nn, h1Nn, h2Nn, 3.25, -2, input_[0], 0, 0)
+        print('')
