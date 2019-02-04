@@ -129,10 +129,10 @@ def Genetic(data, evalFunc, numArray, arrayLen, p, valueList, iters, prt):
                 else: arraies[i][j] = valueList[random.randint(0, len(valueList)-1)] # for probability p, make a mutation
 
         if prt >= 1:
-            print('bestmix: ' + str(bestmix) + '-> eval: ' + str(evalFunc(data, bestmix, [])))
+            print('bestmix: ' + str(bestmix[0:50]) + ' -> eval: ' + str(evalFunc(data, bestmix, [])))
             print('')
         elif prt == 0:
-            print('iter ' + str(eachIter) + ' bestmix: ' + str(bestmix) + '-> eval: ' + str(evalFunc(data, bestmix, [])))
+            print('iter ' + str(eachIter) + ' bestmix: ' + str(bestmix[0:50]) + ' -> eval: ' + str(evalFunc(data, bestmix, [])))
 
     if prt == 0: print('')
     print('FINAL bestmix: ' + str(bestmix) + '-> eval: ' + str(evalFunc(data, bestmix, [])))
