@@ -198,7 +198,7 @@ def evaluate(board, inp, etc):
 
 # SOCOBAN: #(wall) .(blank) S(agent point) B(box) X(goal) O(box on goal) V(agent on goal)
 # play game (use input and make output)
-def playGame(board, width, height, numArray, arrayLen, p, iters, games, prt):
+def playGame(board, width, height, numArray, arrayLen, p, iters, games, prt, preserve):
 
     geneticResult = []
 
@@ -208,7 +208,7 @@ def playGame(board, width, height, numArray, arrayLen, p, iters, games, prt):
         
         # using genetic algorithm, find the best input (called bestmix)
         valueList = [0, 1, 2, 3]
-        bestmix = Genetic.Genetic(board, evaluate, numArray, arrayLen, p, valueList, iters, prt)
+        bestmix = Genetic.Genetic(board, evaluate, numArray, arrayLen, p, valueList, iters, prt, preserve)
 
         # print the best way
         print('')
@@ -243,6 +243,7 @@ arrayLen = int(config[1]) # length of each array
 p = float(config[2]) # probability of mutation
 iters = int(config[3]) # number of iterations
 prt = int(config[4]) # print?
+preserve = int(config[5]) # preserve?
 
 games = int(read[1].split('\n')[0]) # number of iterations of performing genetic algorithm
 
@@ -263,5 +264,5 @@ output_ = [] # DNN output
 # play game
 height = len(board)
 width = len(board[0])
-playGame(board, width, height, numArray, arrayLen, p, iters, games, prt)
+playGame(board, width, height, numArray, arrayLen, p, iters, games, prt, preserve)
 print('')
