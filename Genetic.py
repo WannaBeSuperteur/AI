@@ -15,6 +15,7 @@ def getData():
     p = float(config[2])
     iters = int(config[3])
     prt = int(config[4])
+    preserve = int(config[5])
 
     # read maze data
     data = []
@@ -22,7 +23,7 @@ def getData():
         row = read[i].split('\n')[0].split(' ')
         data.append(row)
         
-    return (data, numArray, arrayLen, p, iters, prt)
+    return (data, numArray, arrayLen, p, iters, prt, preserve)
 
 # evaluation function
 def evaluation(data, array, etc):
@@ -78,7 +79,7 @@ def evaluation(data, array, etc):
     return -(abs(point[0]-goal[0])+abs(point[1]-goal[1]))
 
 # perform genetic algorithm
-def Genetic(data, evalFunc, numArray, arrayLen, p, valueList, iters, prt):
+def Genetic(data, evalFunc, numArray, arrayLen, p, valueList, iters, prt, preserve):
 
     # 1. random initialize
     arraies = []
@@ -120,13 +121,26 @@ def Genetic(data, evalFunc, numArray, arrayLen, p, valueList, iters, prt):
         for i in range(int(arrayLen/2), arrayLen): best1.append(arraies[best1Index][i])
 
         # make 'bestmix': half best0, half best1
-        bestmix = best0 + best1
+        # preserve the best
+        if preserve != 0:
+            if evalFunc(data, bestmix, []) <= evalFunc(data, best0 + best1, []):
+                bestmix = best0 + best1
+        # do not preserve
+        else:
+            bestmix = best0 + best1
 
         # 5. update arraies: add random noise to 'bestmix'
         for i in range(numArray):
-            for j in range(arrayLen):
-                if random.random() >= p: arraies[i][j] = bestmix[j]
-                else: arraies[i][j] = valueList[random.randint(0, len(valueList)-1)] # for probability p, make a mutation
+            # do not preserve the best array
+            if preserve == 0:
+                for j in range(arrayLen):
+                    if random.random() >= p: arraies[i][j] = bestmix[j]
+                    else: arraies[i][j] = valueList[random.randint(0, len(valueList)-1)] # for probability p, make a mutation
+            # preserve the best array
+            else:
+                for j in range(2, arrayLen):
+                    if random.random() >= p: arraies[i][j] = bestmix[j]
+                    else: arraies[i][j] = valueList[random.randint(0, len(valueList)-1)] # for probability p, make a mutation
 
         if prt >= 1:
             print('bestmix: ' + str(bestmix[0:50]) + ' -> eval: ' + str(evalFunc(data, bestmix, [])))
@@ -139,5 +153,5 @@ def Genetic(data, evalFunc, numArray, arrayLen, p, valueList, iters, prt):
     return bestmix
 
 if __name__ == '__main__':
-    (data, numArray, arrayLen, p, iters, prt) = getData()
-    Genetic(data, evaluation, numArray, arrayLen, p, [0, 1, 2, 3], iters, prt)
+    (data, numArray, arrayLen, p, iters, prt, preserve) = getData()
+    Genetic(data, evaluation, numArray, arrayLen, p, [0, 1, 2, 3], iters, prt, preserve)
