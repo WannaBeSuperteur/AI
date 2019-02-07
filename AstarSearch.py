@@ -114,33 +114,47 @@ def AstarSearch(startPoint, data, distFunc, costFunc, findNextMove, moveFunc, As
     tree = [[startPoint, -1, 0, 0, -1]] # initialize: information about the start point
     currPoint = startPoint # current point
 
-    # search until there is no element in the queue or reach the goal
+    # do not search again if finished
+    finishList = []
+
+    # search until there is no element in the priority queue or reach the goal
     while 1:
         broken = 0
 
         # update queue
         (newId, nextMoves) = findNextMove(data, currPoint, distFunc, costFunc, totalCost, Astar, Id, newId) # find next moves
-        queue += nextMoves # append nextMoves in the queue
+        queue += nextMoves # append nextMoves in the priority queue
         tree += nextMoves # also in the tree
-        if len(queue) == 0: break # break if the queue is empty
+        if len(queue) == 0: break # break if the priority queue is empty
         queue.sort(key=lambda x:x[1]) # sort by cost
 
         # print queue
         if prt != 0:
             prtResult = ''
             for i in range(min(len(queue), 4)):
-                prtResult += (str(queue[i][0]) + '(A*:' + nToS(queue[i][1], 3) + ', cost:' + nToS(queue[i][2], 3) + ')    ')
+                prtResult += (str(queue[i][0]) + '(A*:' + nToS(queue[i][1], 3) + ', cost:' + nToS(queue[i][2], 3) + ') (id: ' + nToS(queue[i][3], 3) + '/' + nToS(queue[i][4], 3) + ')  ')
             if len(queue) > 10: prtResult += '...'
             print('queue: ' + prtResult)
 
         # break if reached the goal
         if queue[0][1] == queue[0][2]: broken = 1
 
+        # if the point is in finishList, do not update and just pop
+        while any (x == queue[0][0] for x in finishList):
+            queue.pop(0)
+
         # next move (to search)
         currPoint = queue[0][0] # update current point
         totalCost = queue[0][2] # update cost
-        Id = queue[0][3] # update ID of item
-        queue.pop(0) # pop best move from the queue
+        Id = queue[0][3] # update ID of current point
+        preId = queue[0][4] # ID of predecessor of current point
+        queue.pop(0) # pop best move from the priority queue
+
+        # if there is no point that predecessor point is X (in the priority queue), append X in finishList
+        preIdCount = 0
+        for i in range(len(queue)):
+            if queue[i][4] == preId: preIdCount += 1
+        if preIdCount == 0: finishList.append(tree[preId][0])
 
         if broken == 1: break
     print('')
