@@ -161,48 +161,6 @@ def Back(hidden0Output, hidden1Output, hidden2Output, outputOutput, iNn, h0Nn, h
         Oh0 = hidden0Output[i]
         Sh0.append(Sum*Oh0*(1-Oh0))
 
-    # find gradient
-    H2Ograd = [] # gradient between HIDDEN 2 and OUTPUT layer
-    H1H2grad = [] # gradient between HIDDEN 1 and HIDDEN 2 layer
-    H0H1grad = [] # gradient between HIDDEN 0 and HIDDEN 1 layer
-    IH0grad = [] # gradient between INPUT and HIDDEN 0 layer
-            
-    # j HIDDENs and i OUTPUTs
-    # dE/dWh2o = (do-Oo)*Oo*(1-Oo)*Oh2 = So*Oh2
-    for i in range(oNn):
-        Ograd = []
-        for j in range(h2Nn):
-            Ograd.append(So[i]*hidden2Output[j])
-        H2Ograd.append(Ograd)
-                    
-    # j HIDDEN1s and i HIDDEN2s
-    # dE/dWh1h2 = Sum{(do-Oo)*Oo*(1-Oo)*Wh2o} * Oh2*(1-Oh2)*Oh1
-    #         = Sum(So*Wh2o) * Oh2*(1-Oh2)*Oh1 = Sh2*Oh1
-    for i in range(h2Nn):
-        H2grad = []
-        Oh2 = hidden2Output[i]
-        for j in range(h1Nn):
-            H2grad.append(Sh2[i]*float(hidden1Output[j]))
-        H1H2grad.append(H2grad)
-
-    # j HIDDEN0s and i HIDDEN1s
-    # dE/dWh0h1 = Sh1*Oh0
-    for i in range(h1Nn):
-        H1grad = []
-        Oh1 = hidden1Output[i]
-        for j in range(h0Nn):
-            H1grad.append(Sh1[i]*float(hidden0Output[j]))
-        H0H1grad.append(H1grad)
-
-    # j INPUTs and, i HIDDEN0s
-    # dE/dWih0 = Sh0*Xi
-    for i in range(h0Nn):
-        H0grad = []
-        Oh0 = hidden0Output[i]
-        for j in range(iNn):
-            H0grad.append(Sh0[i]*float(input_[d][j]))
-        IH0grad.append(H0grad)
-
     # update Hidden2-Output weights (Wh2o += lr*So*Oh2)
     # j HIDDEN2s and i OUTPUTs
     for i in range(oNn):
