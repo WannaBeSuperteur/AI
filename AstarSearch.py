@@ -142,6 +142,7 @@ def AstarSearch(startPoint, data, distFunc, costFunc, findNextMove, moveFunc, As
         # if the point is in finishList, do not update and just pop
         while any (x == queue[0][0] for x in finishList):
             queue.pop(0)
+            if len(queue) == 0: break
 
         # next move (to search)
         currPoint = queue[0][0] # update current point
