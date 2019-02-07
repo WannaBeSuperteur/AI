@@ -327,4 +327,4 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt):
 
 if __name__ == '__main__':
     (neurons, matrix, printDetail, lr, prt) = getData()
-    Backpropagation([[1, 2, 3, 4]], [[0.5, 0.6, 0.7, 0.8]], neurons, matrix, printDetail, lr, prt)
+    Backpropagation([[1, 2, 3, 4], [2, 3, 4, 5]], [[0.5, 0.6, 0.7, 0.8], [0.6, 0.7, 0.8, 0.9]], neurons, matrix, printDetail, lr, prt)
