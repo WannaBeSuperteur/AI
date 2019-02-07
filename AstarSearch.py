@@ -129,7 +129,7 @@ def AstarSearch(startPoint, data, distFunc, costFunc, findNextMove, moveFunc, As
         if prt != 0:
             prtResult = ''
             for i in range(min(len(queue), 4)):
-                prtResult += (str(queue[i][0]) + '(A*:' + nToS(queue[i][1], 3) + ', cost:' + nToS(queue[i][2], 3) + ') (id:' + nToS(queue[i][3], 3) + '/' + nToS(queue[i][4], 3) + ')    ')
+                prtResult += (str(queue[i][0]) + '(A*:' + nToS(queue[i][1], 3) + ', cost:' + nToS(queue[i][2], 3) + ')    ')
             if len(queue) > 10: prtResult += '...'
             print('queue: ' + prtResult)
 
