@@ -1,5 +1,6 @@
 import math
 import random
+import time
 
 # read data from file
 def getData():
@@ -8,7 +9,9 @@ def getData():
     read = file.readlines()
     file.close
 
-    prt = int(read[0]) # print?
+    config = read[0].split('\n')[0].split(' ')
+    prt = int(config[0]) # print?
+    timeSec = float(config[1]) # time (seconds)
 
     # read maze data
     data = []
@@ -16,7 +19,7 @@ def getData():
         row = read[i].split('\n')[0].split(' ')
         data.append(row)
         
-    return (data, prt)
+    return (data, prt, timeSec)
 
 # find point and goal
 def pointAndGoal(data):
@@ -103,7 +106,7 @@ def nToS(num, n):
     return ' '*(n-len(s)) + s
 
 # A* search algorithm
-def AstarSearch(startPoint, data, distFunc, costFunc, findNextMove, moveFunc, Astar, prt):
+def AstarSearch(startPoint, data, distFunc, costFunc, findNextMove, moveFunc, Astar, prt, timeSec):
     queue = [] # [0]: state after move, [1]: A* result, [2]: cost, [3]: ID [4]: ID of predecessor
     totalCost = 0 # accumulated cost
     
@@ -111,11 +114,15 @@ def AstarSearch(startPoint, data, distFunc, costFunc, findNextMove, moveFunc, As
     newId = 1 # id of element (will be enqueued)
 
     # tree of elements have been enqueued in the queue
-    tree = [[startPoint, -1, 0, 0, -1]] # initialize: information about the start point
+    tree = [[startPoint, 2147483647, 0, 0, -1]] # initialize: information about the start point
     currPoint = startPoint # current point
 
     # do not search again if finished
     finishList = []
+
+    # get current time
+    startTime = time.time()
+    timeover = 0
 
     # search until there is no element in the priority queue or reach the goal
     while 1:
@@ -158,14 +165,34 @@ def AstarSearch(startPoint, data, distFunc, costFunc, findNextMove, moveFunc, As
         if preIdCount == 0: finishList.append(tree[preId][0])
 
         if broken == 1: break
+
+        # time check
+        currTime = time.time()
+        if currTime - startTime > timeSec:
+            timeover = 1
+            break
+        
     print('')
 
     # find the goal element
     goalId = 0 # ID of goal element (also index of goal element in the tree)
-    for i in range(len(tree)):
-        if tree[i][1] == tree[i][2]: # if A* result and cost is same -> distance is 0, goal
-            goalId = i
-            break
+    if timeover == 0:
+        for i in range(len(tree)):
+            if tree[i][1] == tree[i][2]: # if A* result and cost is same -> distance is 0, goal
+                goalId = i
+                break
+    else: # if timeover -> find element that has minimum distance
+        minDist = tree[0][1]-tree[0][2]
+        minDistId = 0
+        for i in range(len(tree)):
+            thisDist = tree[i][1] - tree[i][2]
+            if thisDist < minDist:
+                minDist = thisDist
+                minDistId = i
+        
+        # consider minimum distance element as the goal
+        goalId = minDistId
+        print('time over : nearest goal is ' + str(tree[goalId]))
 
     # backtracking from goal element to start point
     point = tree[goalId][0]
@@ -191,5 +218,5 @@ def AstarSearch(startPoint, data, distFunc, costFunc, findNextMove, moveFunc, As
         print('')
 
 if __name__ == '__main__':
-    (data, prt) = getData()
-    AstarSearch([0, 1], data, distance_, cost_, next_, move_, Astar_, prt)
+    (data, prt, timeSec) = getData()
+    AstarSearch([0, 1], data, distance_, cost_, next_, move_, Astar_, prt, timeSec)
