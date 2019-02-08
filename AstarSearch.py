@@ -187,7 +187,7 @@ def AstarSearch(startPoint, data, distFunc, costFunc, findNextMove, moveFunc, As
     # move
     for i in range(len(pointList)):
         point = pointList[i]
-        move_(data, point, i+1)
+        moveFunc(data, point, i+1)
         print('')
 
 if __name__ == '__main__':
