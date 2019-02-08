@@ -1,4 +1,4 @@
-# FOR 'SIMPLE' DEEP NEURAL NETWORK
+# FOR DEEP NEURAL NETWORK THAT RETURNS 1 OUTPUT VECTOR
 
 import math
 import random
@@ -24,6 +24,7 @@ def getData():
     printDetail = int(config[0])
     prt = int(config[1])
     lr = float(config[2])
+    maxError = float(config[3])
 
     # connect elements
     for i in range(2, len(read)):
@@ -31,7 +32,7 @@ def getData():
         y = int(read[i].split('\n')[0].split(' ')[1])
         matrix[x][y] = 1
 
-    return (neurons, matrix, printDetail, lr, prt)
+    return (neurons, matrix, printDetail, lr, prt, maxError)
 
 # print data
 def printVector(vec, n):
@@ -114,14 +115,34 @@ def forwardAll(matrix, wM, oM, tM, prt):
         for j in range(len(oM[0])):
             oM[i][j] = 0.0
 
+    # sum of layer input
+    oISum = []
+    for i in range(eles):
+        temp = []
+        for j in range(len(oM[i])):
+            temp.append(0)
+        oISum.append(temp)
+
+    # check layer A did forwarding from A to B
+    forwarded = []
+    for i in range(eles): forwarded.append(0)
+
     # forward propagation for all connected layers (i->j)
     for i in range(eles):
         for j in range(eles):
             if matrix[i][j] == 1:
                 (oI, oO) = forward(oM[i], len(oM[i]), len(oM[j]), tM[j], wM[i][j], prt, j)
+                forwarded[i] = 1
 
-                # update output matrix of layer j
-                for x in range(len(oM[j])): oM[j][x] = oO[x]
+                # update input
+                for x in range(len(oM[j])): oISum[j][x] += oI[x]
+                # if no predecessor that didn't do forwarding, update output matrix of layer j using sum of input
+                forwardCount = 0
+                for k in range(eles):
+                    if matrix[i][j] == 1 and forwarded[i] == 0: forwardCount += 1
+                if forwardCount == 0:
+                    for x in range(len(oM[j])):
+                        oM[j][x] = sigmoid(oISum[j][x])
 
     if prt != 0: print('')
 
@@ -218,37 +239,46 @@ def initWeightAndThreshold(aNn, bNn, bNt, bNw):
         bNt[i] = random.random() # 1 threshold/neuron
 
 # print neuron info
-def printNeuronInfo(aNn, bNn, bNt, bNw):
-    print('<HIDDEN>')
+def printNeuronInfo(aNn, bNn, bNt, bNw, a, b):
+    print('<NEURON LAYER ' + str(b) + '>')
     for i in range(bNn):
         print('Neuron ' + str(i) + ': thr = ' + str(round(bNt[i], 6)))
         for j in range(aNn):
-            print('[ inputN ' + str(j) + ' ] weight = ' + str(round(bNw[i][j], 6)))
+            print('[ layer ' + str(a) + ' N ' + str(j) + ' ] weight = ' + str(round(bNw[i][j], 6)))
     print('')
 
 # print change of weight (a->b)
 def printWeightChange(name, bNn, aNn, bNw, bNw_):
     print(name + ' neurons:')
     for i in range(bNn):
-        print('HIDDEN0 Neuron ' + str(i) + ':')
+        print(str(nId) + ' Neuron ' + str(i) + ':')
         for j in range(aNn):
             before = str(round(bNw_[i][j], 6))
             after = str(round(bNw[i][j], 6))
             print('[ inputN ' + str(j) + ' ] weight = ' + before + '->' + after)
 
 # train Neural Network
-def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt):
+def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, maxError):
 
     # backpropagation for all connected layers (i->j)
     # make chains
-    if matrix[0][1] == 1:
-        chains = [] # array of chains
-        dEdW = [] # array of dE/dWs
+    chains = [] # array of chains
+    eles = len(matrix)
+    for i in range(eles):
+        # check predecessors of layer i
+        iPre = 0 # number of predecessors of layer i
+        for k in range(eles):
+            if matrix[k][i] == 1: iPre += 1
                 
-        # 0. make all chains from each output layer to this weight(i->j)
-        # (must be the form of a layer -> hidden -> hidden -> ... -> output layer)
-        # using DFS
-        chains = DFSreturnChains(matrix, 0, 1)
+        for j in range(eles):
+            if matrix[i][j] == 1 and iPre == 0:
+                dEdW = [] # array of dE/dWs
+                        
+                # 0. make all chains from each output layer to this weight(i->j)
+                # (must be the form of a layer -> hidden -> hidden -> ... -> output layer)
+                # using DFS
+                chains += DFSreturnChains(matrix, i, j)
+    print('chains                 : ' + str(chains))
 
     iNn = len(input_[0]) # number of input neurons
     oNn = len(destOutput_[0]) # number of output neurons
@@ -257,7 +287,6 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt):
     (wM, oM, tM) = makeWeightAndOutputMatrices(input_[0], matrix, neurons)
     
     # initialize weight and threshold
-    eles = len(matrix)
     for i in range(eles):
         for j in range(eles):
             if matrix[i][j] == 1:
@@ -276,7 +305,7 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt):
             for i in range(eles):
                 for j in range(eles):
                     if matrix[i][j] == 1:
-                        printNeuronInfo(len(oM[i]), len(oM[j]), tM[j], wM[i][j])
+                        printNeuronInfo(len(oM[i]), len(oM[j]), tM[j], wM[i][j], i, j)
 
         # learning
         # for each training data
@@ -316,7 +345,7 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt):
                     errorSum += abs(destOutput_[d][j] - oM[i][j])
 
         # check stop condition
-        if errorSum / oNn < 0.001 or (count >= 20000 and printDetail >= -1) or count >= 1000000:
+        if errorSum / oNn < maxError or (count >= 20000 and printDetail >= -1) or count >= 1000000:
             print('[ FINAL : ' + str(count) + ' ] sum of error: ' + str(round(errorSum, 6)))
             break
         if printDetail >= -1 or count % 100 == 0:
@@ -326,5 +355,5 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt):
     return (neurons, matrix, wM, oM, tM)
 
 if __name__ == '__main__':
-    (neurons, matrix, printDetail, lr, prt) = getData()
-    Backpropagation([[1, 2, 3, 4], [2, 3, 4, 5]], [[0.5, 0.6, 0.7, 0.8], [0.6, 0.7, 0.8, 0.9]], neurons, matrix, printDetail, lr, prt)
+    (neurons, matrix, printDetail, lr, prt, maxError) = getData()
+    Backpropagation([[1, 2, 3, 4]], [[0.5, 0.7, 0.9, 0.95]], neurons, matrix, printDetail, lr, prt, maxError)
