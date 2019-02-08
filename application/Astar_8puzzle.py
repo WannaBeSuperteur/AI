@@ -32,11 +32,14 @@ def findArray(value, array):
     return [-1, -1]
 
 # distance function
-def distance_(data, etc):
-    goal = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '.']]
-
+def distance_(data, goal):
     Sum = 0 # sum of distance of each number in 'goal' and 'data' array
-    list_ = ['1', '2', '3', '4', '5', '6', '7', '8']
+
+    # make list
+    list_ = []
+    for i in range(len(data)*len(data[0])-1):
+        list_.append(str(i+1))
+        
     for i in range(len(list_)):
         inData = findArray(list_[i], data)
         inGoal = findArray(list_[i], goal)
@@ -60,6 +63,8 @@ def boardCopy(board):
 
 # find next move
 def next_(data, currPoint, distFunc, costFunc, totalCost, Astar, Id, newId):
+    height = len(data)
+    width = len(data[0])
     
     # find '.' from array 'currPoint'
     blank = 0
@@ -68,44 +73,54 @@ def next_(data, currPoint, distFunc, costFunc, totalCost, Astar, Id, newId):
         for j in range(len(currPoint[0])):
             if currPoint[i][j] == '.':
                 broken = 1
-                blank = i*3 + j
+                blank = i*width + j
                 break
         if broken == 1: break
 
     result = [] # list of next moves
     newCost = costFunc(data, totalCost) # accumulated cost after move
-    bY = int(blank / 3) # Y index of blank
-    bX = blank % 3 # X index of blank
+    bY = int(blank / width) # Y index of blank
+    bX = blank % width # X index of blank
+
+    # make goal array
+    goal = []
+    
+    for i in range(height):
+        temp = []
+        for j in range(width):
+            if i != height-1 or j != width-1: # except for last cell
+                temp.append(str(i*width + j + 1))
+        goal.append(temp)
 
     # find next moves
-    if blank % 3 > 0: # change with LEFT
+    if blank % width > 0: # change with LEFT
         newB = boardCopy(currPoint)
         newB[bY][bX-1], newB[bY][bX] = newB[bY][bX], newB[bY][bX-1]
-        dist = distFunc(newB, [])
+        dist = distFunc(newB, goal)
 
         result.append([newB, Astar(newCost, dist), newCost, newId, Id])
         newId += 1
 
-    if blank % 3 < 2: # change with RIGHT
+    if blank % width < 2: # change with RIGHT
         newB = boardCopy(currPoint)
         newB[bY][bX+1], newB[bY][bX] = newB[bY][bX], newB[bY][bX+1]
-        dist = distFunc(newB, [])
+        dist = distFunc(newB, goal)
 
         result.append([newB, Astar(newCost, dist), newCost, newId, Id])
         newId += 1
 
-    if blank >= 3: # change with UP
+    if blank >= width: # change with UP
         newB = boardCopy(currPoint)
         newB[bY-1][bX], newB[bY][bX] = newB[bY][bX], newB[bY-1][bX]
-        dist = distFunc(newB, [])
+        dist = distFunc(newB, goal)
 
         result.append([newB, Astar(newCost, dist), newCost, newId, Id])
         newId += 1
 
-    if blank < 6: # change with DOWN
+    if blank < width*(height-1): # change with DOWN
         newB = boardCopy(currPoint)
         newB[bY+1][bX], newB[bY][bX] = newB[bY][bX], newB[bY+1][bX]
-        dist = distFunc(newB, [])
+        dist = distFunc(newB, goal)
 
         result.append([newB, Astar(newCost, dist), newCost, newId, Id])
         newId += 1
