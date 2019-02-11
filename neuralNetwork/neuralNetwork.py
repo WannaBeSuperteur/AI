@@ -42,7 +42,7 @@ def printVector(vec, n):
     return result
 
 # DFS and return chains
-def DFSreturnChains(matrix, startNode, nextNode):
+def DFSreturnChains(matrix, startNode, nextNode, outputList):
     node = nextNode
     stack = []
     path = [startNode, nextNode]
@@ -78,6 +78,8 @@ def DFSreturnChains(matrix, startNode, nextNode):
         path.append(node)
 
     print('Neural Net Construction: ' + str(chains))
+    for i in range(len(chains)): outputList.append(chains[i][len(chains[i])-1])
+    
     return chains
 
 # activation function
@@ -259,6 +261,7 @@ def printWeightChange(name, bNn, aNn, bNw, bNw_):
 
 # train Neural Network
 def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, maxError):
+    outputList = [] # ID of output layers
 
     # backpropagation for all connected layers (i->j)
     # make chains
@@ -277,7 +280,7 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, 
                 # 0. make all chains from each output layer to this weight(i->j)
                 # (must be the form of a layer -> hidden -> hidden -> ... -> output layer)
                 # using DFS
-                chains += DFSreturnChains(matrix, i, j)
+                chains += DFSreturnChains(matrix, i, j, outputList)
     print('chains                 : ' + str(chains))
 
     iNn = len(input_[0]) # number of input neurons
@@ -319,9 +322,11 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, 
             Back(matrix, wM, oM, lr, destOutput_[d], chains)
 
             if printDetail >= 0:
-                print('input data    : ' + printVector(input_[d], 6))
-                print('output data   : ' + printVector(oM[len(oM)-1], 6))
-                print('dest output   : ' + printVector(destOutput_[d], 6))
+                print('input data     : ' + printVector(input_[d], 6))
+                for i in range(len(outputList)):
+                    layerID = outputList[i]
+                    print('output data (' + str(layerID) + '): ' + printVector(oM[layerID], 6))
+                print('dest output    : ' + printVector(destOutput_[d], 6))
             
             # calculate the sum of error
             # find all output layers
