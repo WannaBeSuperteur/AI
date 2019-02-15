@@ -129,12 +129,12 @@ def RNN(steps, hNn, lr, tolearn, testdata, prt, offset):
     listInp = list(setInp) # make list of characters in 'tolearn' and 'testdata'
 
     # make input, hidden and output neurons
-    input_ = [[0.25]*iNn for i in range(steps)] # input data
+    input_ = [[0]*iNn for i in range(steps)] # input data
     hiddeni = [[0]*hNn for i in range(steps)] # hidden layer input
     hidden_ = [[0]*hNn for i in range(steps)] # hidden layer output
     outputi = [[0]*oNn for i in range(steps)] # output layer input
     output_ = [[0]*oNn for i in range(steps)] # output layer output
-    dest_ = [[0.25]*iNn for i in range(steps)] # destination output
+    dest_ = [[0]*iNn for i in range(steps)] # destination output
 
     hNw = [[[0]*iNn for j in range(hNn)] for i in range(steps)]
     oNw = [[[0]*hNn for j in range(oNn)] for i in range(steps)]
@@ -166,8 +166,8 @@ def RNN(steps, hNn, lr, tolearn, testdata, prt, offset):
         ## initialize
         # initialize input and destination data(step 0 to iNn-1)
         for i in range(steps):
-            input_[i][listInp.index(tolearn[i])] = 0.75
-            dest_[i][listInp.index(tolearn[i+offset])] = 0.75
+            input_[i][listInp.index(tolearn[i])] = 1
+            dest_[i][listInp.index(tolearn[i+offset])] = 1
 
         ## forward propagation
         forwardPropagation(input_, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw)
@@ -295,7 +295,7 @@ def RNN(steps, hNn, lr, tolearn, testdata, prt, offset):
         if prt >= 1: print('')
 
         # if sum of error < 0.001 -> return layers
-        if totalErrorSum < 0.001:
+        if totalErrorSum < steps * 0.001:
             print('')
             print('<FINAL>')
             for i in range(steps):
@@ -345,9 +345,9 @@ def getOutput(testdata, listInp, hNw, oNw, hNhNw, steps):
     printWeight(steps, hNn, oNn, hNw, oNw, hNhNw)
     
     # make data
-    input_ = [[0.25]*iNn for i in range(steps)] # input data (test data)
+    input_ = [[0]*iNn for i in range(steps)] # input data (test data)
     for i in range(steps):
-        input_[i][listInp.index(testdata[i])] = 0.75
+        input_[i][listInp.index(testdata[i])] = 1
     hiddeni = [[0]*hNn for i in range(steps)] # hidden layer input
     hidden_ = [[0]*hNn for i in range(steps)] # hidden layer output
     outputi = [[0]*oNn for i in range(steps)] # output layer input
@@ -373,9 +373,10 @@ def getOutput(testdata, listInp, hNw, oNw, hNhNw, steps):
 
     # find max element in output layer
     printMax(output_, listInp)
-        
-(steps, hNn, tolearn, testdata, prt, offset) = getData()
 
-# make layers using RNN
-(listInp, hNw, oNw, hNhNw, steps) = RNN(steps, hNn, 3.25, tolearn, testdata, prt, offset)
-getOutput(testdata, listInp, hNw, oNw, hNhNw, steps)
+if __name__ == '__main__':        
+    (steps, hNn, tolearn, testdata, prt, offset) = getData()
+
+    # make layers using RNN
+    (listInp, hNw, oNw, hNhNw, steps) = RNN(steps, hNn, 3.25, tolearn, testdata, prt, offset)
+    getOutput(testdata, listInp, hNw, oNw, hNhNw, steps)
