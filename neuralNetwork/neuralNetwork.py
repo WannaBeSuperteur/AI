@@ -1,4 +1,4 @@
-# FOR DEEP NEURAL NETWORK THAT RETURNS 1 OUTPUT VECTOR
+# FOR DEEP NEURAL NETWORK (GENERALIZED)
 
 import math
 import random
@@ -369,8 +369,8 @@ if __name__ == '__main__':
     (neurons, matrix, printDetail, lr, prt, maxError) = getData()
     
     destO = [[[], [], [], [], [], [], [], [], [], []]] # dest output
-    destO[0][2] = [0.5, 0.7, 0.9, 0.95]
-    destO[0][5] = [0.5, 0.6, 0.7, 0.8]
-    destO[0][9] = [0.45, 0.55, 0.65, 0.725]
+    destO[0][2] = [0.5, 0.7, 0.9, 0.95] # destination output of layer 2 is [0.5, 0.7, 0.9, 0.95]
+    destO[0][5] = [0.5, 0.6, 0.7, 0.8] # destination output of layer 5 is [0.5, 0.6, 0.7, 0.8]
+    destO[0][9] = [0.45, 0.55, 0.65, 0.725] # destination output of layer 9 is [0.45, 0.55, 0.65, 0.725]
     
     Backpropagation([[1, 2, 3, 4]], destO, neurons, matrix, printDetail, lr, prt, maxError)
