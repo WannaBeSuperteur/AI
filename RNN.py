@@ -2,9 +2,9 @@ import math
 import random
 
 # read data from file
-def getData():
+def getData(fn):
     # get data
-    file = open('RNN.txt', 'r')
+    file = open(fn, 'r')
     read = file.readlines()
     file.close
 
@@ -33,7 +33,7 @@ def printArray(array):
     return result + ']'
 
 # forward propagation
-def forwardPropagation(input_, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw):
+def forwardPropagation(input_, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw, activateFunction):
     steps = len(input_)
 
     iNn = len(input_[0])
@@ -52,7 +52,7 @@ def forwardPropagation(input_, hiddeni, hidden_, outputi, output_, hNw, oNw, hNh
                     sumProduct += (hidden_[i-1][k] * hNhNw[i][j][k])
                     
             hiddeni[i][j] = sumProduct
-            hidden_[i][j] = activate(sumProduct)
+            hidden_[i][j] = activateFunction(sumProduct)
                     
     # about output layers : o[t] = f(V*s[t])
     for i in range(steps):
@@ -62,7 +62,7 @@ def forwardPropagation(input_, hiddeni, hidden_, outputi, output_, hNw, oNw, hNh
                 sumProduct += hidden_[i][k] * oNw[i][j][k]
 
             outputi[i][j] = sumProduct
-            output_[i][j] = activate(sumProduct)
+            output_[i][j] = activateFunction(sumProduct)
 
 # print weight
 def printWeight(steps, hNn, oNn, hNw, oNw, hNhNw):
@@ -113,7 +113,7 @@ def vecD(vec1, vec2):
     return result
 
 # train Neural Network
-def RNN(steps, hNn, lr, tolearn, testdata, prt, offset):
+def RNN(steps, hNn, lr, tolearn, testdata, prt, offset, activateFunction):
 
     print('    +------------------+')
     print('    |     TRAINING     |')
@@ -170,7 +170,7 @@ def RNN(steps, hNn, lr, tolearn, testdata, prt, offset):
             dest_[i][listInp.index(tolearn[i+offset])] = 1
 
         ## forward propagation
-        forwardPropagation(input_, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw)
+        forwardPropagation(input_, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw, activateFunction)
 
         # print neuron info
         if prt >= 2:
@@ -329,7 +329,7 @@ def printMax(array, listInp):
     print('result : ' + result)
 
 # return output using RNN layers
-def getOutput(testdata, listInp, hNw, oNw, hNhNw, steps):
+def getOutput(testdata, listInp, hNw, oNw, hNhNw, steps, activateFunction):
 
     print('    +------------------+')
     print('    |       TEST       |')
@@ -362,7 +362,7 @@ def getOutput(testdata, listInp, hNw, oNw, hNhNw, steps):
 
     # calculate output
     ## forward propagation
-    forwardPropagation(input_, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw)
+    forwardPropagation(input_, hiddeni, hidden_, outputi, output_, hNw, oNw, hNhNw, activateFunction)
 
     for i in range(steps):
         print('< STEP ' + str(i) + ' >')
@@ -375,8 +375,8 @@ def getOutput(testdata, listInp, hNw, oNw, hNhNw, steps):
     printMax(output_, listInp)
 
 if __name__ == '__main__':        
-    (steps, hNn, tolearn, testdata, prt, offset) = getData()
+    (steps, hNn, tolearn, testdata, prt, offset) = getData('RNN.txt')
 
     # make layers using RNN
-    (listInp, hNw, oNw, hNhNw, steps) = RNN(steps, hNn, 3.25, tolearn, testdata, prt, offset)
-    getOutput(testdata, listInp, hNw, oNw, hNhNw, steps)
+    (listInp, hNw, oNw, hNhNw, steps) = RNN(steps, hNn, 3.25, tolearn, testdata, prt, offset, activate)
+    getOutput(testdata, listInp, hNw, oNw, hNhNw, steps, activate)
