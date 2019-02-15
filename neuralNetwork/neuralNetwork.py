@@ -170,11 +170,12 @@ def Back(matrix, wM, oM, lr, destOutput, chains):
         for l in range(len(chains[k])): S.append([])
 
         # for each output layer neuron
-        outputOutput = oM[chains[k][len(S)-1]] # output of output(last) layer of the cain
+        lastLayer = chains[k][len(S)-1] # ID of output(last) layer of the chain
+        outputOutput = oM[lastLayer] # output of output(last) layer of the cain
         oNn = len(outputOutput) # number of output layer neurons (last layer of chain)
         for l in range(oNn):
             Oo = outputOutput[l]
-            S[len(S)-1].append((destOutput[l]-Oo)*Oo*(1-Oo))
+            S[len(S)-1].append((destOutput[lastLayer][l]-Oo)*Oo*(1-Oo))
 
         # for each hidden layer of the chain (layer a->b)
         for l in range(len(S)-2, 0, -1):
@@ -323,10 +324,13 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, 
 
             if printDetail >= 0:
                 print('input data     : ' + printVector(input_[d], 6))
+                for i in range(len(destOutput_[d])):
+                    if len(destOutput_[d][i]) > 0:
+                        print('dest output (' + str(i) + '): ' + printVector(destOutput_[d][i], 6))
+                print('')
                 for i in range(len(outputList)):
                     layerID = outputList[i]
                     print('output data (' + str(layerID) + '): ' + printVector(oM[layerID], 6))
-                print('dest output    : ' + printVector(destOutput_[d], 6))
             
             # calculate the sum of error
             # find all output layers
@@ -339,15 +343,17 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, 
                 else: outputL.append(1)
 
             # calculate sum of error
+            count_ = -1
             for i in range(eles):
                 # do not count error for non-output layer
                 if outputL[i] == 0: continue
 
                 # number of output in each output layer
                 outputs = len(oM[i])
+                count_ += 1
                 
                 for j in range(outputs):
-                    errorSum += abs(destOutput_[d][j] - oM[i][j])
+                    errorSum += abs(destOutput_[d][i][j] - oM[i][j])
 
         # check stop condition
         if errorSum / oNn < maxError or (count >= 20000 and printDetail >= -1) or count >= 1000000:
@@ -361,4 +367,10 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, 
 
 if __name__ == '__main__':
     (neurons, matrix, printDetail, lr, prt, maxError) = getData()
-    Backpropagation([[1, 2, 3, 4]], [[0.5, 0.7, 0.9, 0.95]], neurons, matrix, printDetail, lr, prt, maxError)
+    
+    destO = [[[], [], [], [], [], [], [], [], [], []]] # dest output
+    destO[0][2] = [0.5, 0.7, 0.9, 0.95]
+    destO[0][5] = [0.5, 0.6, 0.7, 0.8]
+    destO[0][9] = [0.45, 0.55, 0.65, 0.725]
+    
+    Backpropagation([[1, 2, 3, 4]], destO, neurons, matrix, printDetail, lr, prt, maxError)
