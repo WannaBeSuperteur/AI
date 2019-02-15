@@ -113,9 +113,13 @@ def forwardAll(matrix, wM, oM, tM, prt):
     eles = len(matrix)
 
     # initialize output data
-    for i in range(1, len(oM)):
-        for j in range(len(oM[0])):
-            oM[i][j] = 0.0
+    for i in range(eles):
+        pred = 0 # number of predecessors of this layer
+        for j in range(eles): pred += matrix[j][i]
+        # there are 1 or more predecessors -> not an input layer -> initialize
+        if pred > 0:
+            for j in range(len(oM[i])):
+                oM[i][j] = 0.0
 
     # sum of layer input
     oISum = []
@@ -227,10 +231,18 @@ def makeWeightAndOutputMatrices(input_, matrix, neurons):
         tM[i] = t
 
     # consider input as output of input layer
-    for i in range(len(oM[0])):
-        oM[0][i] = input_[i]
-    
+    initInput(oM, input_)
+            
     return (wM, oM, tM)
+
+# initialize input
+def initInput(oM, input_): 
+    # consider input as output of input layer
+    for i in range(len(oM)):
+        if len(input_[i]) > 0: # for each input layer
+            for j in range(len(oM[i])): oM[i][j] = input_[i][j]
+        else:
+            for j in range(len(oM[i])): oM[i][j] = 0
 
 # initialize weight and threshold (a->b)
 def initWeightAndThreshold(aNn, bNn, bNt, bNw):
@@ -249,16 +261,6 @@ def printNeuronInfo(aNn, bNn, bNt, bNw, a, b):
         for j in range(aNn):
             print('[ layer ' + str(a) + ' N ' + str(j) + ' ] weight = ' + str(round(bNw[i][j], 6)))
     print('')
-
-# print change of weight (a->b)
-def printWeightChange(name, bNn, aNn, bNw, bNw_):
-    print(name + ' neurons:')
-    for i in range(bNn):
-        print(str(nId) + ' Neuron ' + str(i) + ':')
-        for j in range(aNn):
-            before = str(round(bNw_[i][j], 6))
-            after = str(round(bNw[i][j], 6))
-            print('[ inputN ' + str(j) + ' ] weight = ' + before + '->' + after)
 
 # train Neural Network
 def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, maxError):
@@ -283,9 +285,6 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, 
                 # using DFS
                 chains += DFSreturnChains(matrix, i, j, outputList)
     print('chains                 : ' + str(chains))
-
-    iNn = len(input_[0]) # number of input neurons
-    oNn = len(destOutput_[0]) # number of output neurons
 
     # make weight matrices and output matrices
     (wM, oM, tM) = makeWeightAndOutputMatrices(input_[0], matrix, neurons)
@@ -316,6 +315,9 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, 
         errorSum = 0.0
         for d in range(len(input_)):
 
+            # initialize output matrix
+            initInput(oM, input_[d])
+
             # forward propagation
             forwardAll(matrix, wM, oM, tM, prt)
 
@@ -323,7 +325,10 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, 
             Back(matrix, wM, oM, lr, destOutput_[d], chains)
 
             if printDetail >= 0:
-                print('input data     : ' + printVector(input_[d], 6))
+                for i in range(len(input_[d])):
+                    if len(input_[d][i]) > 0:
+                        print('input data (' + str(i) + '): ' + printVector(input_[d][i], 6))
+                print('')
                 for i in range(len(destOutput_[d])):
                     if len(destOutput_[d][i]) > 0:
                         print('dest output (' + str(i) + '): ' + printVector(destOutput_[d][i], 6))
@@ -356,8 +361,16 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, 
                     errorSum += abs(destOutput_[d][i][j] - oM[i][j])
 
         # check stop condition
-        if errorSum / oNn < maxError or (count >= 20000 and printDetail >= -1) or count >= 1000000:
+        if errorSum < maxError or (count >= 20000 and printDetail >= -1) or count >= 1000000:
+            print('')
             print('[ FINAL : ' + str(count) + ' ] sum of error: ' + str(round(errorSum, 6)))
+
+            # print weights
+            for i in range(eles):
+                for j in range(eles):
+                    if matrix[i][j] == 1:
+                        printNeuronInfo(len(oM[i]), len(oM[j]), tM[j], wM[i][j], i, j)
+                        
             break
         if printDetail >= -1 or count % 100 == 0:
             print('sum of error: ' + str(round(errorSum, 6)))
@@ -365,12 +378,59 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, 
     # return layer info (number of neurons, thresholds and weights)
     return (neurons, matrix, wM, oM, tM)
 
+# test neural network (return output)
+def test(testInput, matrix, wM, oM, tM):
+    print(' ******** TEST ********')
+    print('')
+
+    for i in range(len(testInput)):
+        if len(testInput[i]) > 0:
+            print('test input  (' + str(i) + '): ' + printVector(testInput[i], 6))
+    print('')
+
+    layers = len(matrix) # number of layers in this neural network
+    matrix_ = [[0]*layers for i in range(layers)]
+    for i in range(layers):
+        for j in range(layers):
+            matrix_[i][j] = matrix[i][j]
+
+    # consider input as output of input layer
+    initInput(oM, testInput)
+
+    # do forwarding
+    forwardAll(matrix_, wM, oM, tM, 1)
+
+    # print oM
+    for i in range(layers):
+        succ = 0 # number of successors of this layer
+        for j in range(layers): succ += matrix[i][j]
+
+        # no successor -> output layer
+        if succ == 0: print('output data (' + str(i) + '): ' + printVector(oM[i], 6))
+
 if __name__ == '__main__':
     (neurons, matrix, printDetail, lr, prt, maxError) = getData()
-    
+
+    # make input data
+    input_ = [[[], [], [], [], [], [], [], [], [], []]] # input data
+    input_[0][0] = [1, 2, 2] # input of layer 0 is [1, 2, 2]
+    input_[0][3] = [1, 3, 4] # input of layer 3 is [1, 3, 4]
+    input_[0][6] = [4, 1, 0] # input of layer 6 is [4, 1, 0]
+
+    # make destination output data
     destO = [[[], [], [], [], [], [], [], [], [], []]] # dest output
     destO[0][2] = [0.5, 0.7, 0.9, 0.95] # destination output of layer 2 is [0.5, 0.7, 0.9, 0.95]
     destO[0][5] = [0.5, 0.6, 0.7, 0.8] # destination output of layer 5 is [0.5, 0.6, 0.7, 0.8]
     destO[0][9] = [0.45, 0.55, 0.65, 0.725] # destination output of layer 9 is [0.45, 0.55, 0.65, 0.725]
-    
-    Backpropagation([[1, 2, 3, 4]], destO, neurons, matrix, printDetail, lr, prt, maxError)
+
+    # neural network learning
+    (useless, matrix, wM, oM, tM) = Backpropagation(input_, destO, neurons, matrix, printDetail, lr, prt, maxError)
+
+    # make test input data
+    testInput = [[], [], [], [], [], [], [], [], [], []] # test input data
+    testInput[0] = [111, 222, 333]
+    testInput[3] = [1, 3, 4]
+    testInput[6] = [4, 1, 0]
+
+    # neural network test
+    test(testInput, matrix, wM, oM, tM)
