@@ -77,7 +77,6 @@ def DFSreturnChains(matrix, startNode, nextNode, outputList):
         node = stack.pop()[0]
         path.append(node)
 
-    print('Neural Net Construction: ' + str(chains))
     for i in range(len(chains)): outputList.append(chains[i][len(chains[i])-1])
     
     return chains
@@ -308,7 +307,7 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, 
                 # (must be the form of a layer -> hidden -> hidden -> ... -> output layer)
                 # using DFS
                 chains += DFSreturnChains(matrix, i, j, outputList)
-    print('chains                 : ' + str(chains))
+    if prt == 1: print('chains                 : ' + str(chains))
 
     # make weight matrices and output matrices
     (wM, oM, tM, fwM, bwM) = makeWeightAndOutputMatrices(input_[0], matrix, neurons)
@@ -434,6 +433,8 @@ def test(testInput, matrix, wM, oM, tM, fwM):
 
         # no successor -> output layer
         if succ == 0: print('output data (' + str(i) + '): ' + printVector(oM[i], 6))
+
+    return oM
 
 if __name__ == '__main__':
     (neurons, matrix, printDetail, lr, prt, maxError) = getData()
