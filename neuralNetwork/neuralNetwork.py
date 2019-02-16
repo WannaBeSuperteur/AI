@@ -196,10 +196,13 @@ def Back(matrix, wM, oM, bwM, lr, destOutput, chains):
         # update a-b weights: n 'a's and m 'b's
         for l in range(len(S)-2, -1, -1):
             (aNn, bNn, bNw, aOutput, bOutput) = aNnbNnbNw(chains[k], wM, oM, l)
+
+            a = chains[k][l]
+            b = chains[k][l+1]
                         
             for m in range(bNn):
                 for n in range(aNn):
-                    wM[chains[k][l]][chains[k][l+1]][m][n] += lr * bwM[n][m] * S[l+1][m] * aOutput[n]
+                    wM[a][b][m][n] += lr * bwM[a][b] * S[l+1][m] * aOutput[n]
 
 # make weight matrices and output matrices
 def makeWeightAndOutputMatrices(input_, matrix, neurons):
@@ -248,6 +251,14 @@ def makeWeightAndOutputMatrices(input_, matrix, neurons):
             
     return (wM, oM, tM, fwM, bwM)
 
+# modify forwarding and backpropagation weights
+def modifyWM(fwM, bwM, input_, d, count):
+    eles = len(fwM)
+    for i in range(eles):
+        for j in range(eles):
+            fwM[i][j] = 1.0
+            bwM[i][j] = 1.0
+
 # initialize input
 def initInput(oM, input_): 
     # consider input as output of input layer
@@ -276,7 +287,7 @@ def printNeuronInfo(aNn, bNn, bNt, bNw, a, b):
     print('')
 
 # train Neural Network
-def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, maxError):
+def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, maxError, modifyWMFunc):
     outputList = [] # ID of output layers
 
     # backpropagation for all connected layers (i->j)
@@ -330,6 +341,9 @@ def Backpropagation(input_, destOutput_, neurons, matrix, printDetail, lr, prt, 
 
             # initialize output matrix
             initInput(oM, input_[d])
+
+            # modify weight (fwM and bwM)
+            modifyWMFunc(fwM, bwM, input_, d, count)
 
             # forward propagation
             forwardAll(matrix, wM, oM, tM, fwM, prt)
@@ -437,7 +451,7 @@ if __name__ == '__main__':
     destO[0][9] = [0.45, 0.55, 0.65, 0.725] # destination output of layer 9 is [0.45, 0.55, 0.65, 0.725]
 
     # neural network learning
-    (useless, matrix, wM, oM, tM, fwM) = Backpropagation(input_, destO, neurons, matrix, printDetail, lr, prt, maxError)
+    (useless, matrix, wM, oM, tM, fwM) = Backpropagation(input_, destO, neurons, matrix, printDetail, lr, prt, maxError, modifyWM)
 
     # make test input data
     testInput = [[], [], [], [], [], [], [], [], [], []] # test input data
