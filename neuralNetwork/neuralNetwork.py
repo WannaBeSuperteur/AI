@@ -426,15 +426,19 @@ def test(testInput, matrix, wM, oM, tM, fwM):
     # do forwarding
     forwardAll(matrix_, wM, oM, tM, fwM, 1)
 
+    result = []
+    
     # print oM
     for i in range(layers):
         succ = 0 # number of successors of this layer
         for j in range(layers): succ += matrix[i][j]
 
         # no successor -> output layer
-        if succ == 0: print('output data (' + str(i) + '): ' + printVector(oM[i], 6))
+        if succ == 0:
+            print('output data (' + str(i) + '): ' + printVector(oM[i], 6))
+            result.append(oM[i])
 
-    return oM
+    return result
 
 if __name__ == '__main__':
     (neurons, matrix, printDetail, lr, prt, maxError) = getData()
