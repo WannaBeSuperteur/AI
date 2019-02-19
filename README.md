@@ -1,7 +1,9 @@
 # AI
 artificial intelligence programming
 
-Hanyang university
+
+
+Hanyang University (Seoul Campus)
 
 Department of Computer Engineering
 
