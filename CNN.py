@@ -270,7 +270,7 @@ def CNN(data, rows, cols, images, filtersize, filters, flts, prt):
     # cols : number of columns in each image
     # filtersize : number of rows and columns in each filter (same)
     # filters : number of filters
-    # testimgdata : image for testing CNN
+    # testimgdata : image for testing CNN (each test image)
 
     # convolution 0
     if prt != 0: print('******** CONVOLUTION 0 RESULT ********')
@@ -345,6 +345,13 @@ def CNN(data, rows, cols, images, filtersize, filters, flts, prt):
     return result
 
 def CNNmain():
+    # ConvolWidth : number of columns in each convolution result
+    # ConvolHeight : number of rows in each convolution result
+    # resultArrays : convolution result of each image data (N images),
+    #                (length of [0], [1], ..., [N-1]) = ConvolWidth * ConvolHeight * Filters
+    # testArray : convolution result of test image data (1 image),
+    #             (length of [0]) = ConvolWidth * ConvolHeight * Filters
+    
     (data, rows, cols, images, filtersize, filters, testimgdata, prt) = getData()
 
     print('######## making CNN array ########')
